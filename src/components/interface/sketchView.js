@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Sketch from 'react-p5';
+import TranslateControl from '../../renderLogic/translateControl';
 
-export default function SketchView({ items }) {
-  const setup = (p5, parentRef) => {
-    p5.createCanvas(400, 400).parent(parentRef);
+const dim = { width: 0, height: 0 };
+let translateControl;
+
+const setup = (p5, parentRef) => {
+  dim.width = parentRef.offsetWidth;
+  dim.height = parentRef.offsetHeight;
+
+  p5.createCanvas(dim.width, dim.height).parent(parentRef);
+  translateControl = new TranslateControl(parentRef);
+}
+
+const draw = (p5, items) => {
+  p5.push();
+
+  const t = translateControl.getCurrentTranslation();
+  p5.translate(t.x, t.y);
+  
+  p5.fill(0);
+  p5.rect(-100, -100, dim.width + 100, dim.height + 100);
+
+  for (const item of items) {
+    item.animate();
   }
 
-  const draw = p5 => {
-    p5.fill(0);
-    p5.rect(0, 0, 400, 400);
+  for (const item of items) {
+    item.render(p5);
+  }
 
-    for (const item of items) {
-      item.animate();
-    }
+  p5.pop();
+};
 
-    for (const item of items) {
-      item.render(p5);
-    }
-  };
-
-  return <Sketch setup={setup} draw={draw} />
+export default function SketchView({ items }) {
+  return <Sketch setup={setup} draw={p5 => draw(p5, items)} />
 }

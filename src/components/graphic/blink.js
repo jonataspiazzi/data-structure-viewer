@@ -1,7 +1,7 @@
 import ItemBase from './itemBase';
-import Timeline from '../../animation/timeline';
-import { easeInOutCubic } from '../../animation/easingFunctions';
-import { lerp } from '../../animation/mathFunctions';
+import Timeline from '../../renderLogic/timeline';
+import { bounceEaseInOutCubic } from '../../renderLogic/bouceFunctions';
+import { lerp } from '../../renderLogic/mathFunctions';
 
 export default class Blink extends ItemBase {
   constructor(x, y, initialRadius) {
@@ -11,7 +11,7 @@ export default class Blink extends ItemBase {
     this.radius = initialRadius;
     this.minRadius = initialRadius - initialRadius * .6;
     this.maxRadius = initialRadius + initialRadius * .1;
-    this.tl = new Timeline(easeInOutCubic, 2000, true, true);
+    this.tl = new Timeline(bounceEaseInOutCubic, 2000, true, true);
   }
   
   animate() {

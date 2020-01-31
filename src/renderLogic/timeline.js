@@ -60,7 +60,6 @@ export default class Timeline {
   // a value to be used in animation.
   alpha() {
     let d = this.progress();
-    console.log('d = ', d);
 
     if (d > 1) {
       d = 1;

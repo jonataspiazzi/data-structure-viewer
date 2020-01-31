@@ -5,9 +5,40 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: stretch;
+  align-items: stretch;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.App {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+section.render-area {
+  background: #0000ff;
+  flex-grow: 1;
+  display: flex;
+  justify-content: stretch;
+  align-items: stretch;
+}
+
+section.render-area .react-p5 {
+  width: 100%;
+  height: 100%;
+}
+
+aside.controls {
+  width: 260px;
+  background: #00ff00;
 }
