@@ -19,12 +19,10 @@ export default class TranslateControl {
     this.currentCoord.x = e.clientX;
     this.currentCoord.y = e.clientY;
     this.isTranslating = true;
-    this.tag.style.cursor = 'move';
   }
 
   onMouseUp(e) {
     this.isTranslating = false;
-    this.tag.style.cursor = 'default';
   }
 
   onMouseLeave(e) {

@@ -59,12 +59,13 @@
  */
 
 export default class QuadirectionalTree {
-  constructor(data) {
+  constructor(data, childrenLength) {
     this.parent = null;
     this.left = null;
     this.right = null;
     this.deepness = 0;
-    this.children = [];
+    this.hasFixedLength = childrenLength !== 0 && !isNaN(childrenLength);
+    this.children = new Array(this.hasFixedLength ? childrenLength : 0);
     this.data = data; // info
     this.bind = null; // future use, connection with other data structure.
   }
@@ -82,64 +83,149 @@ export default class QuadirectionalTree {
       + (this.right && direction >= 0 ? this.right.levelLenght(1) : 0);
   }
 
-  addChild(data, method) {
-    if (method != 'unshift' && method != 'push') throw 'Arg method can only be unshift or push';
+  insertChild(data, index) {
+    if (!this.hasFixedLength) throw 'The method setChildOn can only be used with hasFixedLength == true';
+    if (isNaN(index)) throw 'Arg index should be a number';
+    if (Math.trunc(index) !== index || index < 0) throw 'Arg index should be a integer equal or greather than 0';
 
-    const child = new QuadirectionalTree(data);
+    const child = new QuadirectionalTree(data, this.children.length);
 
-    child.left = method == 'push' && this.children.length
-      ? this.children[this.children.length - 1]
-      : this.getClosestLeftNephew();
+    this.children[index] = child;
 
-    child.right = method == 'unshift' && this.children.length
-      ? this.children[0]
-      : this.getClosestRightNephew();
-
-    if (child.left) child.left.right = child;
-    if (child.right) child.right.left = child;
-
-    child.parent = this;
-    child.deepness = this.deepness + 1;
-    this.children[method](child);
+    this.updateChildStructure(child);
 
     return child;
   }
 
-  getClosestLeftNephew() {
-    // From the illustration above
-    // 3 is the closest nephew from 7.
+  pushChild(data) {
+    if (this.hasFixedLength) throw 'The method pushChild can only be used with hasFixedLength == false';
 
-    // fastest way is find by children.
-    if (this.children.length) {
-      return this.children[0].left;
-    }
+    const child = new QuadirectionalTree(data, 0);
 
-    // if no children available, find by sibling.
-    if (!this.left) return null;
+    this.children.push(child);
 
-    if (!this.left.children.length) {
-      return this.left.getClosestLeftNephew(); // recursive
-    }
-    
-    return this.left.children[this.left.children.length - 1];
+    this.updateChildStructure(child);
+
+    return child;
   }
 
-  getClosestRightNephew() {
-    // From the illustration above
-    // 7 is the closest nephew from 2.
+  updateChildStructure(child) {
+    child.parent = this;
+    child.deepness = this.deepness + 1;
+    child.updateLeft();
+    child.updateRight();
+  }
 
-    // fastest way is find by children.
-    if (this.children.length) {
-      return this.children[this.children.length - 1].right;
+  updateLeft() {
+    this.left = null;
+
+    // if has no parent, also has no sibling.
+    if (!this.parent) return;
+
+    // try to find a sibling on left.
+    let onLeft = this.getFirstSiblingOnLeft();
+
+    if (!onLeft && this.parent.left) {
+      // if no sibling on left, try to find a cousin on left.
+      onLeft = this.parent.left.getClosestToRightChild();
     }
 
-    // if no children available, find by sibling.
-    if (!this.right) return null;
-
-    if (!this.right.children.length) {
-      return this.right.getClosestRightNephew(); // recursive
+    if (onLeft) {
+      this.left = onLeft;
+      onLeft.right = this;
     }
-    
-    return this.right.children[0];
+  }
+
+  updateRight() {
+    this.right = null;
+
+    // if has no parent, also has no sibling.
+    if (!this.parent) return;
+
+    // try to find a sibling on right.
+    let onRight = this.getFirstSiblingOnRight();
+
+    if (!onRight && this.parent.right) {
+      // if no sibling on right, try to find a cousin on right.
+      onRight = this.parent.right.getClosestToLeftChild();
+    }
+
+    if (onRight) {
+      this.right = onRight;
+      onRight.left = this;
+    }
+  }
+
+  getFirstSiblingOnLeft() {
+    if (!this.parent) return null;
+
+    const thisIndex = this.parent.children.indexOf(this);
+
+    for (let i = thisIndex - 1; i >= 0; i--) {
+      const sibling = this.parent.children[i];
+      if (sibling) return sibling;
+    }
+
+    return null;
+  }
+
+  getFirstSiblingOnRight() {
+    if (!this.parent) return null;
+
+    const thisIndex = this.parent.children.indexOf(this);
+
+    for (let i = thisIndex + 1; i < this.parent.children.length; i++) {
+      const sibling = this.parent.children[i];
+      if (sibling) return sibling;
+    }
+
+    return null;
+  }
+
+  getClosestToLeftChild() {
+    for (let i = 0; i < this.children.length; i++) {
+      const child = this.children[i];
+      if (child) return child;
+    }
+
+    return this.right ? this.right.getClosestToLeftChild() : null;
+  }
+
+  getClosestToRightChild() {
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      const child = this.children[i];
+      if (child) return child;
+    }
+
+    return this.left ? this.left.getClosestToRightChild() : null;
+  }
+
+  fillFrom(data, dataProp, childrenProps) {
+    this.data = data[dataProp];
+    this.bind = data;
+
+    if (this.hasFixedLength) {
+      for (let i = 0; i < childrenProps.length; i++) {
+        const genericChild = data[childrenProps[i]];
+        if (!genericChild) continue;
+        const child = this.insertChild(undefined, i);
+        child.fillFrom(genericChild, dataProp, childrenProps);
+      }
+
+      return;
+    }
+
+    for (const genericChild of data[childrenProps[0]]) {
+      const child = this.pushChild(undefined);
+      child.fillFrom(genericChild);
+    }
+  }
+
+  *[Symbol.iterator]() {
+    yield this;
+
+    for (const child of this.children) {
+      if (child) yield *child[Symbol.iterator]();
+    }
   }
 }
