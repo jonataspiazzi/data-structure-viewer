@@ -68,6 +68,7 @@ export default class QuadirectionalTree {
     this.children = new Array(this.hasFixedLength ? childrenLength : 0);
     this.data = data; // info
     this.bind = null; // future use, connection with other data structure.
+    this.graphics = { x: 0, y: 0 };
   }
 
   levelLenght(direction) {
@@ -218,6 +219,68 @@ export default class QuadirectionalTree {
     for (const genericChild of data[childrenProps[0]]) {
       const child = this.pushChild(undefined);
       child.fillFrom(genericChild);
+    }
+  }  
+
+  firstChild() {
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i]) return this.children[i];
+    }
+    return null;
+  }
+
+  lastChild() {
+    for (let i = this.children.length - 1; i >= 0; i--) {
+      if (this.children[i]) return this.children[i];
+    }
+    return null;
+  }
+
+  firstOnSublevelRelative() {
+    return this.firstChild() || (this.right && this.right.firstOnSublevelRelative());
+  }
+
+  resetGraphics(width, height, minDistanceX, minDistanceY) {
+    this.graphics.y = minDistanceY + (height + minDistanceY) * this.deepness;
+    this.graphics.x = minDistanceX + (this.left ? this.left.graphics.x + width : 0);
+
+    for (const child of this.children) {
+      if (child) child.resetGraphics(width, height, minDistanceX, minDistanceY);
+    }
+  }
+
+  updateGraphics() {
+    const first = this.firstChild();
+    if (!first) return;
+    const last = this.lastChild();
+
+    const expectedX = (last.graphics.x - first.graphics.x) / 2 + first.graphics.x;
+
+    if (this.graphics.x < expectedX) {
+      const diff = expectedX - this.graphics.x;
+
+      // navigate right up
+      for (let row = this; row; row = row.parent) {
+        for (let col = row; col; col = col.right) {
+          col.graphics.x += diff;
+        }
+      }
+    }
+
+    /*
+    if (this.graphics.x > expectedX) {
+      const diff = this.graphics.x - expectedX;
+
+      // navigate right down
+      for (let row = first; row; row = row.firstOnSublevelRelative()) {
+        for (let col = row; col; col = col.right) {
+          col.graphics.x += diff;
+        }
+      }
+    }*/
+
+    for (const child of this.children) {
+      if (child) child.updateGraphics();
     }
   }
 

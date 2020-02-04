@@ -105,3 +105,47 @@ export function createLinkedList() {
 
   return list;
 }
+
+export function createGraphicTreeData() {
+  /*
+   *                                                                               
+   *                                        ┌─────┐                                
+   *                                        │ 101 │                                
+   *                                        └──┬──┘                                
+   *                  ┌─────────┬─────────┬────┴────┬─────────┬─────────┐          
+   *               ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐       
+   *               │ 201 │   │ 202 │   │ 203 │   │ 204 │   │ 205 │   │ 206 │       
+   *               └─────┘   └──┬──┘   └─────┘   └─────┘   └─────┘   └──┬──┘       
+   *               ┌────────────┴───────────┐                      ┌────┴────┐     
+   *            ┌──┴──┐                  ┌──┴──┐                ┌──┴──┐   ┌──┴──┐  
+   *            │ 301 │                  │ 302 │                │ 303 │   │ 304 │  
+   *            └──┬──┘                  └──┬──┘                └─────┘   └──┬──┘  
+   *     ┌─────────┼─────────┐         ┌────┴────┐                           │     
+   *  ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐   ┌──┴──┐                     ┌──┴──┐  
+   *  │ 401 │   │ 402 │   │ 403 │   │ 404 │   │ 405 │                     │ 406 │  
+   *  └─────┘   └─────┘   └─────┘   └─────┘   └─────┘                     └─────┘  
+   *                                                                               
+   */
+
+  const nodes = [];
+  
+  nodes[101] = new QuadirectionalTree(101, 0);
+  nodes[201] = nodes[101].pushChild(201);
+  nodes[202] = nodes[101].pushChild(202);
+  nodes[203] = nodes[101].pushChild(203);
+  nodes[204] = nodes[101].pushChild(204);
+  nodes[205] = nodes[101].pushChild(205);
+  nodes[206] = nodes[101].pushChild(206);
+  nodes[301] = nodes[202].pushChild(301);
+  nodes[302] = nodes[202].pushChild(302);
+  nodes[303] = nodes[206].pushChild(303);
+  nodes[304] = nodes[206].pushChild(304);
+  nodes[401] = nodes[301].pushChild(401);
+  nodes[402] = nodes[301].pushChild(402);
+  nodes[403] = nodes[301].pushChild(403);
+  nodes[404] = nodes[302].pushChild(404);
+  nodes[405] = nodes[302].pushChild(405);
+  nodes[406] = nodes[304].pushChild(406);
+
+  return nodes;
+}
