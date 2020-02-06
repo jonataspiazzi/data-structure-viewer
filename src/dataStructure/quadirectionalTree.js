@@ -236,51 +236,78 @@ export default class QuadirectionalTree {
     return null;
   }
 
-  firstOnSublevelRelative() {
-    return this.firstChild() || (this.right && this.right.firstOnSublevelRelative());
+  getLevelFirsts() {
+    const firsts = [];
+
+    for (const item of this) {
+      if (!item.left) firsts[item.deepness] = item;
+    }
+
+    return firsts;
   }
 
-  resetGraphics(width, height, minDistanceX, minDistanceY) {
-    this.graphics.y = minDistanceY + (height + minDistanceY) * this.deepness;
-    this.graphics.x = minDistanceX + (this.left ? this.left.graphics.x + width : 0);
+  updateGraphics(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
+    const firsts = this.getLevelFirsts();
 
-    for (const child of this.children) {
-      if (child) child.resetGraphics(width, height, minDistanceX, minDistanceY);
+    for (let i = firsts.length - 1; i >= 0; i--) { // go from the last level to first.
+      for (let item = firsts[i]; item; item = item.right) { // go left to right in each level.
+        item.updateGraphicsSubtreeStep1(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild);
+      }
     }
   }
 
-  updateGraphics() {
+  getMinLocationFromLeft(width, spaceBetweenSiblings, spaceBetweenCousins) {
+    if (!this.left) return 0;
+
+    const spaceBetween = this.parent == this.left.parent
+      ? spaceBetweenSiblings
+      : spaceBetweenCousins;
+
+    return this.left.graphics.x + width + spaceBetween;
+  }
+
+  getCenterLocationOfChildren() {
     const first = this.firstChild();
-    if (!first) return;
+    if (!first) return 0;
+
     const last = this.lastChild();
 
-    const expectedX = (last.graphics.x - first.graphics.x) / 2 + first.graphics.x;
+    const fx = first ? first.graphics.x : undefined;
+    const lx = last ? last.graphics.x : undefined;
 
-    if (this.graphics.x < expectedX) {
-      const diff = expectedX - this.graphics.x;
+    if (fx == lx) return fx;
 
-      // navigate right up
-      for (let row = this; row; row = row.parent) {
-        for (let col = row; col; col = col.right) {
-          col.graphics.x += diff;
+    return fx + (lx - fx) / 2;
+  }
+
+  updateGraphicsSubtreeStep1(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
+    // step 1 move all nodes to the right the minimun distance to give space to nodes on left.
+    
+    const xRefLeft = this.getMinLocationFromLeft(width, spaceBetweenSiblings, spaceBetweenCousins);
+    const xRefChildren = this.getCenterLocationOfChildren();
+    
+    if (xRefChildren > xRefLeft) {
+      this.graphics.x = xRefChildren;
+    }
+    else {
+      const diffX = xRefLeft - this.graphics.x;
+
+      if (diffX > 0) {
+        for (let item = this; item; item = item.right) {
+          item.moveSubtree(diffX, 0);
         }
       }
     }
 
-    /*
-    if (this.graphics.x > expectedX) {
-      const diff = this.graphics.x - expectedX;
+    this.graphics.y = this.deepness * (height + spaceBetweenParentAndChild);
+  }
 
-      // navigate right down
-      for (let row = first; row; row = row.firstOnSublevelRelative()) {
-        for (let col = row; col; col = col.right) {
-          col.graphics.x += diff;
-        }
-      }
-    }*/
+  moveSubtree(x, y) {
+    this.graphics.x += x;
+    this.graphics.y += y;
 
     for (const child of this.children) {
-      if (child) child.updateGraphics();
+      if (child) child.moveSubtree(x, y);
     }
   }
 
