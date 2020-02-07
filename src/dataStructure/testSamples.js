@@ -136,15 +136,15 @@ export function createGraphicTreeData() {
   nodes[101] = new QuadirectionalTree(101, 0);
 
   nodes[201] = nodes[101].pushChild(201);
-  nodes[202] = nodes[101].pushChild(202);
-  nodes[203] = nodes[101].pushChild(203);
+  //nodes[202] = nodes[101].pushChild(202);
+  //nodes[203] = nodes[101].pushChild(203);
   nodes[204] = nodes[101].pushChild(204);
   nodes[205] = nodes[101].pushChild(205);
   nodes[206] = nodes[101].pushChild(206);
 
   nodes[301] = nodes[201].pushChild(301);
-  nodes[302] = nodes[203].pushChild(302);
-  nodes[303] = nodes[203].pushChild(303);
+  //nodes[302] = nodes[203].pushChild(302);
+  //nodes[303] = nodes[203].pushChild(303);
   nodes[304] = nodes[204].pushChild(304);
   nodes[305] = nodes[206].pushChild(305);
   nodes[306] = nodes[206].pushChild(306);

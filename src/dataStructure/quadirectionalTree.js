@@ -236,18 +236,18 @@ export default class QuadirectionalTree {
     return null;
   }
 
-  getLevelFirsts() {
+  getLeftByLevel() {
     const firsts = [];
 
     for (const item of this) {
-      if (!item.left) firsts[item.deepness] = item;
+      if (!firsts[item.deepness]) firsts[item.deepness] = item;
     }
 
     return firsts;
   }
 
   updateGraphics(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
-    const firsts = this.getLevelFirsts();
+    const firsts = this.getLeftByLevel();
 
     for (let i = firsts.length - 1; i >= 0; i--) { // go from the last level to first.
       for (let item = firsts[i]; item; item = item.right) { // go left to right in each level.
@@ -256,7 +256,7 @@ export default class QuadirectionalTree {
     }
   }
 
-  getMinLocationFromLeft(width, spaceBetweenSiblings, spaceBetweenCousins) {
+  getXLocationBasedOnLeftSibling(width, spaceBetweenSiblings, spaceBetweenCousins) {
     if (!this.left) return 0;
 
     const spaceBetween = this.parent == this.left.parent
@@ -266,7 +266,7 @@ export default class QuadirectionalTree {
     return this.left.graphics.x + width + spaceBetween;
   }
 
-  getCenterLocationOfChildren() {
+  getXLocationBasedOnChildren() {
     const first = this.firstChild();
     if (!first) return 0;
 
@@ -280,26 +280,32 @@ export default class QuadirectionalTree {
     return fx + (lx - fx) / 2;
   }
 
+  getMinTranslation() {
+    
+  }
+
   updateGraphicsSubtreeStep1(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
     // step 1 move all nodes to the right the minimun distance to give space to nodes on left.
     
-    const xRefLeft = this.getMinLocationFromLeft(width, spaceBetweenSiblings, spaceBetweenCousins);
-    const xRefChildren = this.getCenterLocationOfChildren();
+    const xBasedOnLeftSibling = this.getXLocationBasedOnLeftSibling(width, spaceBetweenSiblings, spaceBetweenCousins);
+    const xBasedOnChildren = this.getXLocationBasedOnChildren();
     
-    if (xRefChildren > xRefLeft) {
-      this.graphics.x = xRefChildren;
-    }
-    else {
-      const diffX = xRefLeft - this.graphics.x;
-
-      if (diffX > 0) {
-        for (let item = this; item; item = item.right) {
-          item.moveSubtree(diffX, 0);
-        }
-      }
-    }
-
     this.graphics.y = this.deepness * (height + spaceBetweenParentAndChild);
+
+    if (xBasedOnChildren > xBasedOnLeftSibling) {
+      this.graphics.x = xBasedOnChildren;
+      return;
+    }
+
+    const diffX = xBasedOnLeftSibling - this.graphics.x;
+
+    if (diffX <= 0) return;
+    
+    for (let item = this; item; item = item.right) {
+      item.moveSubtree(diffX, 0);
+    }
+
+    return;
   }
 
   moveSubtree(x, y) {
@@ -317,5 +323,21 @@ export default class QuadirectionalTree {
     for (const child of this.children) {
       if (child) yield *child[Symbol.iterator]();
     }
+  }
+
+  getRoot() {
+    return this.parent ? this.parent.getRoot() : this;
+  }
+
+  print(tab, highlight) {
+    const o = this == highlight ? '<' : '[';
+    const c = this == highlight ? '>' : ']';
+    let lines = [`${tab}${o}${this.data}${c} - x: ${this.graphics.x}, y: ${this.graphics.y}`];
+
+    for (const child of this.children) {
+      if (child) lines.push(...child.print(tab + '   ', highlight));
+    }
+
+    return lines;
   }
 }

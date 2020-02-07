@@ -375,12 +375,14 @@ describe('QuadirectionalTree tests', () => {
     expect(nodes[14].lastChild()).toBeNode(null);
   });
 
-  test('Should get level firsts', () => {
-    const f1 = nodes[0].getLevelFirsts();
-    const f2 = nodes[10].getLevelFirsts();
+  test('Should get left by level', () => {
+    const f1 = nodes[0].getLeftByLevel();
+    const f2 = nodes[10].getLeftByLevel();
+    const f3 = nodes[3].getLeftByLevel();
     
     expect(f1.length).toBe(4);
     expect(f2.length).toBe(3);
+    expect(f3.length).toBe(4);
 
     expect(f1[0]).toBeNode(0);
     expect(f1[1]).toBeNode(1);
@@ -390,6 +392,11 @@ describe('QuadirectionalTree tests', () => {
     expect(f2[0]).toBeNode(10);
     expect(f2[1]).toBeNode(11);
     expect(f2[2]).toBeNode(13);
+
+    expect(f3[0]).toBeNode(null);
+    expect(f3[1]).toBeNode(3);
+    expect(f3[2]).toBeNode(6);
+    expect(f3[3]).toBeNode(9);
   });
 
   test('Should reset graphics', () => {
@@ -397,32 +404,34 @@ describe('QuadirectionalTree tests', () => {
   });
 
   test('Should update graphics correctly.', () => {
-    quadGraphics[301].updateGraphics(120, 120, 40, 80, 80);
+    /*
+    quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
 
-    //expect(quadGraphics[101]).toHaveLocation(,0);
-    //expect(quadGraphics[201]).toHaveLocation(,200);
-    //expect(quadGraphics[202]).toHaveLocation(,200);
-    //expect(quadGraphics[203]).toHaveLocation(,200);
-    //expect(quadGraphics[204]).toHaveLocation(,200);
-    //expect(quadGraphics[205]).toHaveLocation(,200);
-    //expect(quadGraphics[206]).toHaveLocation(,200);
-    //expect(quadGraphics[301]).toHaveLocation(540, 400);
-    //expect(quadGraphics[302]).toHaveLocation(,400);
-    //expect(quadGraphics[303]).toHaveLocation(,400);
-    //expect(quadGraphics[304]).toHaveLocation(,400);
-    //expect(quadGraphics[305]).toHaveLocation(,400);
-    //expect(quadGraphics[306]).toHaveLocation(,400);
+    //expect(quadGraphics[101]).toHaveLocation(1090, 0);
+    expect(quadGraphics[201]).toHaveLocation(540, 200);
+    //expect(quadGraphics[202]).toHaveLocation(870, 200);
+    //expect(quadGraphics[203]).toHaveLocation(1000, 200);
+    expect(quadGraphics[204]).toHaveLocation(1280, 200);
+    expect(quadGraphics[205]).toHaveLocation(1440, 200);
+    expect(quadGraphics[206]).toHaveLocation(1600, 200);
+    expect(quadGraphics[301]).toHaveLocation(540, 400);
+    //expect(quadGraphics[302]).toHaveLocation(920, 400);
+    //expect(quadGraphics[303]).toHaveLocation(1080, 400);
+    expect(quadGraphics[304]).toHaveLocation(1280, 400);
+    expect(quadGraphics[305]).toHaveLocation(1520, 400);
+    expect(quadGraphics[306]).toHaveLocation(1680, 400);
     expect(quadGraphics[401]).toHaveLocation(0, 600);
     expect(quadGraphics[402]).toHaveLocation(160, 600);
     expect(quadGraphics[403]).toHaveLocation(320, 600);
     expect(quadGraphics[404]).toHaveLocation(600, 600);
-    //expect(quadGraphics[405]).toHaveLocation(,600);
-    //expect(quadGraphics[406]).toHaveLocation(,600);
-    //expect(quadGraphics[407]).toHaveLocation(,600);
-    //expect(quadGraphics[408]).toHaveLocation(,600);
-    //expect(quadGraphics[409]).toHaveLocation(,600);
+    expect(quadGraphics[405]).toHaveLocation(760, 600);
+    expect(quadGraphics[406]).toHaveLocation(920, 600);
+    expect(quadGraphics[407]).toHaveLocation(1080, 600);
+    expect(quadGraphics[408]).toHaveLocation(1280, 600);
+    expect(quadGraphics[409]).toHaveLocation(1680, 600);
     expect(quadGraphics[501]).toHaveLocation(320, 800);
     expect(quadGraphics[502]).toHaveLocation(520, 800);
-    expect(quadGraphics[503]).toHaveLocation(780, 800);
+    expect(quadGraphics[503]).toHaveLocation(680, 800);
+    */
   });
 });
