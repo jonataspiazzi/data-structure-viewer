@@ -375,10 +375,10 @@ describe('QuadirectionalTree tests', () => {
     expect(nodes[14].lastChild()).toBeNode(null);
   });
 
-  test('Should get left by level', () => {
-    const f1 = nodes[0].getLeftByLevel();
-    const f2 = nodes[10].getLeftByLevel();
-    const f3 = nodes[3].getLeftByLevel();
+  test('Should get first on level', () => {
+    const f1 = nodes[0].getFirstOnLevel();
+    const f2 = nodes[10].getFirstOnLevel();
+    const f3 = nodes[3].getFirstOnLevel();
     
     expect(f1.length).toBe(4);
     expect(f2.length).toBe(3);
@@ -404,10 +404,9 @@ describe('QuadirectionalTree tests', () => {
   });
 
   test('Should update graphics correctly.', () => {
-    /*
     quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
 
-    //expect(quadGraphics[101]).toHaveLocation(1090, 0);
+    expect(quadGraphics[101]).toHaveLocation(1070, 0);
     expect(quadGraphics[201]).toHaveLocation(540, 200);
     //expect(quadGraphics[202]).toHaveLocation(870, 200);
     //expect(quadGraphics[203]).toHaveLocation(1000, 200);
@@ -432,6 +431,5 @@ describe('QuadirectionalTree tests', () => {
     expect(quadGraphics[501]).toHaveLocation(320, 800);
     expect(quadGraphics[502]).toHaveLocation(520, 800);
     expect(quadGraphics[503]).toHaveLocation(680, 800);
-    */
   });
 });

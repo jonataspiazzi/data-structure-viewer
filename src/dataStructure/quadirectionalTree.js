@@ -236,7 +236,7 @@ export default class QuadirectionalTree {
     return null;
   }
 
-  getLeftByLevel() {
+  getFirstOnLevel() {
     const firsts = [];
 
     for (const item of this) {
@@ -246,74 +246,54 @@ export default class QuadirectionalTree {
     return firsts;
   }
 
-  updateGraphics(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
-    const firsts = this.getLeftByLevel();
-
-    for (let i = firsts.length - 1; i >= 0; i--) { // go from the last level to first.
-      for (let item = firsts[i]; item; item = item.right) { // go left to right in each level.
-        item.updateGraphicsSubtreeStep1(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild);
-      }
-    }
-  }
-
-  getXLocationBasedOnLeftSibling(width, spaceBetweenSiblings, spaceBetweenCousins) {
-    if (!this.left) return 0;
-
-    const spaceBetween = this.parent == this.left.parent
-      ? spaceBetweenSiblings
-      : spaceBetweenCousins;
-
-    return this.left.graphics.x + width + spaceBetween;
-  }
-
-  getXLocationBasedOnChildren() {
-    const first = this.firstChild();
-    if (!first) return 0;
-
-    const last = this.lastChild();
-
-    const fx = first ? first.graphics.x : undefined;
-    const lx = last ? last.graphics.x : undefined;
-
-    if (fx == lx) return fx;
-
-    return fx + (lx - fx) / 2;
-  }
-
-  getMinTranslation() {
-    
-  }
-
-  updateGraphicsSubtreeStep1(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
-    // step 1 move all nodes to the right the minimun distance to give space to nodes on left.
-    
-    const xBasedOnLeftSibling = this.getXLocationBasedOnLeftSibling(width, spaceBetweenSiblings, spaceBetweenCousins);
-    const xBasedOnChildren = this.getXLocationBasedOnChildren();
-    
-    this.graphics.y = this.deepness * (height + spaceBetweenParentAndChild);
-
-    if (xBasedOnChildren > xBasedOnLeftSibling) {
-      this.graphics.x = xBasedOnChildren;
-      return;
-    }
-
-    const diffX = xBasedOnLeftSibling - this.graphics.x;
-
-    if (diffX <= 0) return;
-    
-    for (let item = this; item; item = item.right) {
-      item.moveSubtree(diffX, 0);
-    }
-
-    return;
-  }
-
-  moveSubtree(x, y) {
+  translate(x, y) {
     this.graphics.x += x;
     this.graphics.y += y;
 
     for (const child of this.children) {
-      if (child) child.moveSubtree(x, y);
+      if (child) child.translate(x, y);
+    }
+  }
+
+  translateRight(width, spaceBetweenSiblings, spaceBetweenCousins) {
+    const first = this.firstChild();
+    const last = this.lastChild();
+
+    // get position of subtree root based on its children
+    if (first) {
+      this.graphics.x = first != last
+        ? (last.graphics.x + first.graphics.x) / 2
+        : first.graphics.x;
+    }
+    else {
+      this.graphics.x = 0;
+    }
+
+    // find the major distance required to respect the spaces between left items.
+    let maxTranslationX = 0;
+    for (const item of this.getFirstOnLevel()) {
+      if (item && item.left) {
+        const minX = item.left.graphics.x + width +
+          (item.parent == item.left.parent ? spaceBetweenSiblings : spaceBetweenCousins);
+
+        const translationX = minX - item.graphics.x;
+
+        if (translationX > maxTranslationX) maxTranslationX = translationX;
+      }
+    }
+
+    // translate the whole subtree to respect spaces.
+    if (maxTranslationX) this.translate(maxTranslationX, 0);
+  }
+
+  updateGraphics(width, height, spaceBetweenSiblings, spaceBetweenCousins, spaceBetweenParentAndChild) {
+    const firsts = this.getFirstOnLevel();
+
+    for (let rowIndex = firsts.length - 1; rowIndex >= 0; rowIndex--) {
+      for (let col = firsts[rowIndex]; col; col = col.right) {
+        col.translateRight(width, spaceBetweenSiblings, spaceBetweenCousins);
+        col.graphics.y = col.deepness * (height + spaceBetweenParentAndChild);
+      }
     }
   }
 
