@@ -12,7 +12,7 @@ const c3 = c1 + 1;
 const c4 = (2 * PI) / 3;
 const c5 = (2 * PI) / 4.5;
 
-function bounceOut(x) {
+function bounceOut(x: number) {
 	const n1 = 7.5625;
 	const d1 = 2.75;
 
@@ -27,61 +27,59 @@ function bounceOut(x) {
 	}
 }
 
-export function easeLinear(x) {
-	return x;
-}
-export function easeInQuad(x) {
+
+export function easeInQuad(x: number) {
 	return x * x;
 }
-export function easeOutQuad(x) {
+export function easeOutQuad(x: number) {
 	return 1 - (1 - x) * (1 - x);
 }
-export function easeInOutQuad(x) {
+export function easeInOutQuad(x: number) {
 	return x < 0.5 ? 2 * x * x : 1 - pow(-2 * x + 2, 2) / 2;
 }
-export function easeInCubic(x) {
+export function easeInCubic(x: number) {
 	return x * x * x;
 }
-export function easeOutCubic(x) {
+export function easeOutCubic(x: number) {
 	return 1 - pow(1 - x, 3);
 }
-export function easeInOutCubic(x) {
+export function easeInOutCubic(x: number) {
 	return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
 }
-export function easeInQuart(x) {
+export function easeInQuart(x: number) {
 	return x * x * x * x;
 }
-export function easeOutQuart(x) {
+export function easeOutQuart(x: number) {
 	return 1 - pow(1 - x, 4);
 }
-export function easeInOutQuart(x) {
+export function easeInOutQuart(x: number) {
 	return x < 0.5 ? 8 * x * x * x * x : 1 - pow(-2 * x + 2, 4) / 2;
 }
-export function easeInQuint(x) {
+export function easeInQuint(x: number) {
 	return x * x * x * x * x;
 }
-export function easeOutQuint(x) {
+export function easeOutQuint(x: number) {
 	return 1 - pow(1 - x, 5);
 }
-export function easeInOutQuint(x) {
+export function easeInOutQuint(x: number) {
 	return x < 0.5 ? 16 * x * x * x * x * x : 1 - pow(-2 * x + 2, 5) / 2;
 }
-export function easeInSine(x) {
+export function easeInSine(x: number) {
 	return 1 - cos((x * PI) / 2);
 }
-export function easeOutSine(x) {
+export function easeOutSine(x: number) {
 	return sin((x * PI) / 2);
 }
-export function easeInOutSine(x) {
+export function easeInOutSine(x: number) {
 	return -(cos(PI * x) - 1) / 2;
 }
-export function easeInExpo(x) {
+export function easeInExpo(x: number) {
 	return x === 0 ? 0 : pow(2, 10 * x - 10);
 }
-export function easeOutExpo(x) {
+export function easeOutExpo(x: number) {
 	return x === 1 ? 1 : 1 - pow(2, -10 * x);
 }
-export function easeInOutExpo(x) {
+export function easeInOutExpo(x: number) {
 	return x === 0
 		? 0
 		: x === 1
@@ -90,43 +88,43 @@ export function easeInOutExpo(x) {
 				? pow(2, 20 * x - 10) / 2
 				: (2 - pow(2, -20 * x + 10)) / 2;
 }
-export function easeInCirc(x) {
+export function easeInCirc(x: number) {
 	return 1 - sqrt(1 - pow(x, 2));
 }
-export function easeOutCirc(x) {
+export function easeOutCirc(x: number) {
 	return sqrt(1 - pow(x - 1, 2));
 }
-export function easeInOutCirc(x) {
+export function easeInOutCirc(x: number) {
 	return x < 0.5
 		? (1 - sqrt(1 - pow(2 * x, 2))) / 2
 		: (sqrt(1 - pow(-2 * x + 2, 2)) + 1) / 2;
 }
-export function easeInBack(x) {
+export function easeInBack(x: number) {
 	return c3 * x * x * x - c1 * x * x;
 }
-export function easeOutBack(x) {
+export function easeOutBack(x: number) {
 	return 1 + c3 * pow(x - 1, 3) + c1 * pow(x - 1, 2);
 }
-export function easeInOutBack(x) {
+export function easeInOutBack(x: number) {
 	return x < 0.5
 		? (pow(2 * x, 2) * ((c2 + 1) * 2 * x - c2)) / 2
 		: (pow(2 * x - 2, 2) * ((c2 + 1) * (x * 2 - 2) + c2) + 2) / 2;
 }
-export function easeInElastic(x) {
+export function easeInElastic(x: number) {
 	return x === 0
 		? 0
 		: x === 1
 			? 1
 			: -pow(2, 10 * x - 10) * sin((x * 10 - 10.75) * c4);
 }
-export function easeOutElastic(x) {
+export function easeOutElastic(x: number) {
 	return x === 0
 		? 0
 		: x === 1
 			? 1
 			: pow(2, -10 * x) * sin((x * 10 - 0.75) * c4) + 1;
 }
-export function easeInOutElastic(x) {
+export function easeInOutElastic(x: number) {
 	return x === 0
 		? 0
 		: x === 1
@@ -135,11 +133,11 @@ export function easeInOutElastic(x) {
 				? -(pow(2, 20 * x - 10) * sin((20 * x - 11.125) * c5)) / 2
 				: (pow(2, -20 * x + 10) * sin((20 * x - 11.125) * c5)) / 2 + 1;
 }
-export function easeInBounce(x) {
+export function easeInBounce(x: number) {
 	return 1 - bounceOut(1 - x);
 }
 export const easeOutBounce = bounceOut;
-export function easeInOutBounce(x) {
+export function easeInOutBounce(x: number) {
 	return x < 0.5
 		? (1 - bounceOut(1 - 2 * x)) / 2
 		: (1 + bounceOut(2 * x - 1)) / 2;

@@ -3,9 +3,9 @@ import SketchView from './components/interface/sketchView';
 import Blink from './components/graphic/blink';
 import './App.css';
 
-export default function App() {
+const App = () => {
   const [items] = useState([new Blink(100, 100, 90)]);
-  
+
   return (
     <div className="App">
       <section className="render-area">
@@ -17,3 +17,5 @@ export default function App() {
     </div>
   );
 }
+
+export default App;

@@ -1,5 +1,13 @@
+import { Vector2d } from "../types";
+
 export default class TranslateControl {
-  constructor(tag) {
+  isTranslating: boolean;
+  lastTranslation: Vector2d;
+  originalCoord: Vector2d;
+  currentCoord: Vector2d;
+  tag: HTMLElement;
+
+  constructor(tag: HTMLElement) {
     this.isTranslating = false;
     this.lastTranslation = { x: 0, y: 0 };
     this.originalCoord = { x: 0, y: 0 };
@@ -12,7 +20,7 @@ export default class TranslateControl {
     tag.addEventListener('mousemove', e => this.onMouseMove(e));
   }
 
-  onMouseDown(e) {
+  onMouseDown(e: MouseEvent): void {
     this.lastTranslation = this.getCurrentTranslation();
     this.originalCoord.x = e.clientX;
     this.originalCoord.y = e.clientY;
@@ -21,11 +29,11 @@ export default class TranslateControl {
     this.isTranslating = true;
   }
 
-  onMouseUp(e) {
+  onMouseUp(e: MouseEvent): void {
     this.isTranslating = false;
   }
 
-  onMouseLeave(e) {
+  onMouseLeave(e: MouseEvent): void {
     if (this.isTranslating) {
       this.currentCoord.x = e.clientX;
       this.currentCoord.y = e.clientY;
@@ -33,14 +41,14 @@ export default class TranslateControl {
     }
   }
 
-  onMouseMove(e) {
+  onMouseMove(e: MouseEvent): void {
     if (this.isTranslating) {
       this.currentCoord.x = e.clientX;
       this.currentCoord.y = e.clientY;
     }
   }
 
-  getCurrentTranslation() {
+  getCurrentTranslation(): Vector2d {
     return {
       x: this.lastTranslation.x + this.currentCoord.x - this.originalCoord.x,
       y: this.lastTranslation.y + this.currentCoord.y - this.originalCoord.y

@@ -1,10 +1,13 @@
 export default class LinkedList {
-  constructor(data) {
+  info:any;
+  next:LinkedList;
+
+  constructor(data:any) {
     this.info = data;
     this.next = null;
   }
 
-  add(data) {
+  add(data:any) {
     if (this.next == null) {
       this.next = new LinkedList(data);
       return;
@@ -13,7 +16,8 @@ export default class LinkedList {
     this.next.add(data);
   }
 
-  *[Symbol.iterator]() {
+  
+  *[Symbol.iterator](): Iterator<any> {
     yield this.info;
 
     if (this.next) yield* this.next;

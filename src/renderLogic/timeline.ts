@@ -1,5 +1,16 @@
+import { EasingFunc } from "../types";
+
 export default class Timeline {
-  constructor(easing, duration, autostart, autoreset) {
+  easing: EasingFunc;
+  duration: number;
+  autoreset: boolean;
+  startMoment: number;
+  isPaused: boolean;
+  hasStarted: boolean;
+  hasFinished: boolean;
+  pauseElapsed: number;
+
+  constructor(easing: EasingFunc, duration: number, autostart: boolean, autoreset: boolean) {
     this.easing = easing;
     this.duration = duration;
     this.autoreset = !!autoreset;
@@ -7,26 +18,26 @@ export default class Timeline {
     if (autostart) this.start();
   }
 
-  start() {
+  start(): void {
     this.startMoment = Date.now();
     this.isPaused = false;
     this.hasStarted = true;
     this.hasFinished = false;
   }
 
-  pause() {
+  pause(): void {
     if (this.isPaused) return;
     this.pauseElapsed = this.elapsed();
     this.isPaused = true;
   }
 
-  resume() {
+  resume(): void {
     this.startMoment = Date.now() - this.pauseElapsed;
     this.isPaused = false;
     this.pauseElapsed = 0;
   }
 
-  finish() {
+  finish(): void {
     this.isPaused = false;
     this.hasStarted = true;
     this.hasFinished = true;
@@ -36,7 +47,7 @@ export default class Timeline {
     }
   }
 
-  stop() {
+  stop(): void {
     this.startMoment = 0;
     this.pauseElapsed = 0;
     this.isPaused = false;
@@ -45,7 +56,7 @@ export default class Timeline {
   }
 
   // amount of seconds from start
-  elapsed() {
+  elapsed(): number {
     if (!this.hasStarted) return 0;
     if (this.hasFinished) return this.duration;
 
@@ -53,12 +64,12 @@ export default class Timeline {
   }
 
   // percentage of progress.
-  progress() {
+  progress(): number {
     return this.elapsed() * 1.0 / this.duration;
   }
 
   // a value to be used in animation.
-  alpha() {
+  alpha(): number {
     let d = this.progress();
 
     if (d > 1) {

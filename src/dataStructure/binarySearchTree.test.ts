@@ -1,7 +1,8 @@
 import { createBinarySearchTreeData } from './testSamples';
+import BinarySearchTree from './binarySearchTree';
 
 describe('BinarySearchTree tests', () => {
-  let node = null;
+  let node: BinarySearchTree = null;
 
   beforeAll(() => {
     node = createBinarySearchTreeData();

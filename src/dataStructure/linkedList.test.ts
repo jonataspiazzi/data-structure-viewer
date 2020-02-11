@@ -1,7 +1,8 @@
 import { createLinkedList } from './testSamples';
+import LinkedList from './linkedList';
 
 describe('LinkedList tests', () => {
-  let list = null;
+  let list: LinkedList = null;
 
   beforeAll(() => {
     list = createLinkedList();
