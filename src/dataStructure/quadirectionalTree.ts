@@ -301,6 +301,18 @@ export default class QuadirectionalTree {
     return null;
   }
 
+  getLeftAnchor(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): QuadirectionalTree {
+    if (!this.left) return null;
+    if (this.parent != this.left.parent) return null;
+    if (this.graphics.x - this.left.graphics.x <= width + spaceBetweenSiblings) return null;
+
+    let anchorPoint = this.getAnchorPoint(width, spaceBetweenSiblings, spaceBetweenCousins);
+
+    if (!anchorPoint.left) return null;
+
+    return anchorPoint.left.getRoot(this.deepness);
+  }
+
   translate(x: number, y: number): void {
     this.graphics.x += x;
     this.graphics.y += y;
@@ -339,6 +351,12 @@ export default class QuadirectionalTree {
     if (this.graphics.x - this.left.graphics.x <= width + spaceBetweenSiblings) return;
 
     let anchorPoint = this.getAnchorPoint(width, spaceBetweenSiblings, spaceBetweenCousins);
+
+    if (!anchorPoint.left) return;
+
+    let leftHandler = anchorPoint.getRoot(this.deepness);
+
+
   }
 
   updateGraphics(width: number, height: number, spaceBetweenSiblings: number, spaceBetweenCousins: number, spaceBetweenParentAndChild: number): void {
@@ -366,8 +384,8 @@ export default class QuadirectionalTree {
     }
   }
 
-  getRoot(): QuadirectionalTree {
-    return this.parent ? this.parent.getRoot() : this;
+  getRoot(deepness?: number): QuadirectionalTree {
+    return this.parent && this.deepness != deepness ? this.parent.getRoot(deepness) : this;
   }
 
   print(tab: string, highlight: QuadirectionalTree): Array<string> {

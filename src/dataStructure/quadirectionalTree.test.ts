@@ -1,4 +1,4 @@
-import QuadirectionalTree, { QuadirectionalTreeGraphics } from './quadirectionalTree';
+import QuadirectionalTree from './quadirectionalTree';
 import { createQuadirectionalTreeData, createBinarySearchTreeData, createLinkedList, createGraphicTreeData } from './testSamples';
 import chalk from 'chalk';
 import BinarySearchTree from './binarySearchTree';
@@ -440,6 +440,36 @@ describe('QuadirectionalTree tests', () => {
     expect(quadGraphics[501].getAnchorPoint(120, 40, 80)).toBeNode(null);
     expect(quadGraphics[502].getAnchorPoint(120, 40, 80)).toBeNode(null);
     expect(quadGraphics[503].getAnchorPoint(120, 40, 80)).toBeNode(null);
+  });
+
+  test('Should get left anchor', () => {
+    quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
+
+    expect(quadGraphics[101].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[201].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    //expect(quadGraphics[202].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    //expect(quadGraphics[203].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[204].getLeftAnchor(120, 40, 80)).toBeNode(201);
+    expect(quadGraphics[205].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[206].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[301].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    //expect(quadGraphics[302].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    //expect(quadGraphics[303].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[304].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[305].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[306].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[401].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[402].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[403].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[404].getLeftAnchor(120, 40, 80)).toBeNode(403);
+    expect(quadGraphics[405].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[406].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[407].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[408].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[409].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[501].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[502].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[503].getLeftAnchor(120, 40, 80)).toBeNode(null);
   });
 
   test('Should update graphics correctly.', () => {
