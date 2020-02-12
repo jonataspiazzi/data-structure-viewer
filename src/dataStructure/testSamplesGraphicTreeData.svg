@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" data-name="Layer 1" viewBox="0 0 1800 920">
+   <defs>
+      <style>.cls-1{fill:none;stroke:#231f20;stroke-miterlimit:10;}.cls-2{font-size:48px;fill:#231f20;font-family:MyriadPro-Regular, Myriad Pro;}</style>
+   </defs>
+   <title>sketch tree</title>
+   <rect class="cls-1" y="600" width="120" height="120" />
+   <rect class="cls-1" x="160" y="600" width="120" height="120" />
+   <rect class="cls-1" x="320" y="600" width="120" height="120" />
+   <rect class="cls-1" x="600" y="600" width="120" height="120" />
+   <rect class="cls-1" x="760" y="600" width="120" height="120" />
+   <rect class="cls-1" x="540" y="400" width="120" height="120" />
+   <rect class="cls-1" x="770" y="200" width="120" height="120" />
+   <rect class="cls-1" x="540" y="200" width="120" height="120" />
+   <rect class="cls-1" x="1280" y="200" width="120" height="120" />
+   <rect class="cls-1" x="1440" y="200" width="120" height="120" />
+   <rect class="cls-1" x="1520" y="400" width="120" height="120" />
+   <rect class="cls-1" x="1680" y="400" width="120" height="120" />
+   <rect class="cls-1" x="1680" y="600" width="120" height="120" />
+   <rect class="cls-1" x="1070" width="120" height="120" />
+   <rect class="cls-1" x="320" y="800" width="120" height="120" />
+   <rect class="cls-1" x="520" y="800" width="120" height="120" />
+   <rect class="cls-1" x="680" y="800" width="120" height="120" />
+   <polyline class="cls-1" points="580 800 660 720 740 800" />
+   <polyline class="cls-1" points="1580 400 1660 320 1740 400" />
+   <line class="cls-1" x1="380" y1="720" x2="380" y2="800" />
+   <line class="cls-1" x1="1740" y1="520" x2="1740" y2="600" />
+   <rect class="cls-1" x="1280" y="400" width="120" height="120" />
+   <rect class="cls-1" x="1000" y="200" width="120" height="120" />
+   <rect class="cls-1" x="1600" y="200" width="120" height="120" />
+   <line class="cls-1" x1="1340" y1="320" x2="1340" y2="400" />
+   <polyline class="cls-1" points="600 200 1130 120 1660 200" />
+   <polyline class="cls-1" points="830 200 1130 120 1500 200" />
+   <polyline class="cls-1" points="1060 200 1130 120 1340 200" />
+   <rect class="cls-1" x="1280" y="600" width="120" height="120" />
+   <line class="cls-1" x1="1340" y1="520" x2="1340" y2="600" />
+   <text class="cls-2" transform="translate(563.0654 260)">201</text>
+   <text class="cls-2" transform="translate(793.0654 260)">202</text>
+   <text class="cls-2" transform="translate(1023.0654 260)">203</text>
+   <text class="cls-2" transform="translate(1303.0654 260)">204</text>
+   <text class="cls-2" transform="translate(1463.0654 260)">205</text>
+   <text class="cls-2" transform="translate(1623.0654 260)">206</text>
+   <text class="cls-2" transform="translate(1093.0654 60)">101</text>
+   <text class="cls-2" transform="translate(563.0654 460)">301</text>
+   <text class="cls-2" transform="translate(1303.0654 460)">304</text>
+   <text class="cls-2" transform="translate(1543.0654 460)">305</text>
+   <text class="cls-2" transform="translate(1703.0654 460)">306</text>
+   <text class="cls-2" transform="translate(23.0654 660)">401</text>
+   <text class="cls-2" transform="translate(183.0654 660)">402</text>
+   <text class="cls-2" transform="translate(343.0654 660)">403</text>
+   <text class="cls-2" transform="translate(623.0654 660)">404</text>
+   <text class="cls-2" transform="translate(783.0654 660)">405</text>
+   <text class="cls-2" transform="translate(1303.0654 660)">408</text>
+   <text class="cls-2" transform="translate(1703.0654 660)">409</text>
+   <text class="cls-2" transform="translate(343.0654 860)">501</text>
+   <text class="cls-2" transform="translate(543.0654 860)">502</text>
+   <text class="cls-2" transform="translate(703.0654 860)">503</text>
+   <rect class="cls-1" x="920" y="600" width="120" height="120" />
+   <rect class="cls-1" x="920" y="400" width="120" height="120" />
+   <rect class="cls-1" x="1080" y="400" width="120" height="120" />
+   <polyline class="cls-1" points="980 400 1060 320 1140 400" />
+   <text class="cls-2" transform="translate(943.0654 460)">302</text>
+   <text class="cls-2" transform="translate(1103.0654 460)">303</text>
+   <rect class="cls-1" x="1080" y="600" width="120" height="120" />
+   <polyline class="cls-1" points="60 600 600 520 1140 600" />
+   <polyline class="cls-1" points="220 600 600 520 980 600" />
+   <polyline class="cls-1" points="380 600 600 520 820 600" />
+   <line class="cls-1" x1="660" y1="600" x2="600" y2="520" />
+   <text class="cls-2" transform="translate(943.0654 660)">406</text>
+   <text class="cls-2" transform="translate(1103.0654 660)">407</text>
+   <line class="cls-1" x1="600" y1="400" x2="600" y2="320" />
+</svg>

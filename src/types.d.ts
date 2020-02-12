@@ -1,8 +1,8 @@
-import p5 from "p5";
+import P5 from "p5";
 
 export interface GraphicItem {
   animate: () => void;
-  render: (p5: p5) => void;
+  render: (p5: P5) => void;
 }
 
 export interface EasingFunc {

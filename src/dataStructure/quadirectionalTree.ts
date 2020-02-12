@@ -113,9 +113,9 @@ export default class QuadirectionalTree {
   }
 
   insertChild(data: any, index: number): QuadirectionalTree {
-    if (!this.hasFixedLength) throw 'The method setChildOn can only be used with hasFixedLength == true';
-    if (isNaN(index)) throw 'Arg index should be a number';
-    if (Math.trunc(index) !== index || index < 0) throw 'Arg index should be a integer equal or greater than 0';
+    if (!this.hasFixedLength) throw new Error('The method setChildOn can only be used with hasFixedLength == true');
+    if (isNaN(index)) throw new Error('Arg index should be a number');
+    if (Math.trunc(index) !== index || index < 0) throw new Error('Arg index should be a integer equal or greater than 0');
 
     const child = new QuadirectionalTree(data, this.children.length);
 
@@ -127,7 +127,7 @@ export default class QuadirectionalTree {
   }
 
   pushChild(data: any): QuadirectionalTree {
-    if (this.hasFixedLength) throw 'The method pushChild can only be used with hasFixedLength == false';
+    if (this.hasFixedLength) throw new Error('The method pushChild can only be used with hasFixedLength == false');
 
     const child = new QuadirectionalTree(data, 0);
 
@@ -302,7 +302,7 @@ export default class QuadirectionalTree {
     if (!this.left) return;
 
     const min = this.left.graphics.x + config.width +
-      (this.parent == this.left.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
+      (this.parent === this.left.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
 
     return min - this.graphics.x;
   }
@@ -336,7 +336,7 @@ export default class QuadirectionalTree {
     if (!this.right) return;
 
     const min = this.right.graphics.x - config.width -
-      (this.parent == this.right.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
+      (this.parent === this.right.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
 
     return this.graphics.x - min;
   }
@@ -367,11 +367,11 @@ export default class QuadirectionalTree {
   getAnchorPoint(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
     for (const item of this.getFirstOnLevel()) {
       if (!item) continue;
-      if (item == this) continue;
+      if (item === this) continue;
 
       const min = item.getMinTranslationOnLeft(config);
 
-      if (min == 0) return item;
+      if (min === 0) return item;
     }
 
     return null;
@@ -386,7 +386,7 @@ export default class QuadirectionalTree {
     */
   getLeftAnchor(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
     if (!this.left) return null;
-    if (this.parent != this.left.parent) return null;
+    if (this.parent !== this.left.parent) return null;
     if (this.graphics.x - this.left.graphics.x <= config.width + config.spaceBetweenSiblings) return null;
 
     let anchorPoint = this.getAnchorPoint(config);
@@ -414,17 +414,17 @@ export default class QuadirectionalTree {
 
     if (!leftAnchor) return [];
 
-    while (leftAnchor.parent != this.parent) {
+    while (leftAnchor.parent !== this.parent) {
       if (leftAnchor.right) return [];
 
       leftAnchor = leftAnchor.right;
     }
 
-    if (leftAnchor == this.left) return [];
+    if (leftAnchor === this.left) return [];
 
     const unevenNodes = new Array<QuadirectionalTree>();
 
-    for (let node = leftAnchor.right; node && node != this; node = node.right) {
+    for (let node = leftAnchor.right; node && node !== this; node = node.right) {
       unevenNodes.push(node);
     }
 
@@ -457,7 +457,7 @@ export default class QuadirectionalTree {
 
     // get position of subtree root based on its children
     if (first) {
-      this.graphics.x = first != last
+      this.graphics.x = first !== last
         ? (last.graphics.x + first.graphics.x) / 2
         : first.graphics.x;
     }
@@ -565,12 +565,12 @@ export default class QuadirectionalTree {
     *   @returns the ancestor.
     */
   getAncestor(deepness?: number): QuadirectionalTree {
-    return this.parent && this.deepness != deepness ? this.parent.getAncestor(deepness) : this;
+    return this.parent && this.deepness !== deepness ? this.parent.getAncestor(deepness) : this;
   }
 
   print(tab: string, highlight: QuadirectionalTree): Array<string> {
-    const o = this == highlight ? '<' : '[';
-    const c = this == highlight ? '>' : ']';
+    const o = this === highlight ? '<' : '[';
+    const c = this === highlight ? '>' : ']';
     let lines = [`${tab}${o}${this.data}${c} - x: ${this.graphics.x}, y: ${this.graphics.y}`];
 
     for (const child of this.children) {
