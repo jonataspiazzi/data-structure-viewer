@@ -60,13 +60,28 @@ import { Vector2d } from "../types";
  * 
  */
 
+export interface QuadirectionalTreeTranslateConfigX {
+  width: number;
+  spaceBetweenSiblings: number;
+  spaceBetweenCousins: number;
+}
+
+export interface QuadirectionalTreeTranslateConfigY {
+  height: number;
+  spaceBetweenParentAndChild: number;
+}
+
+export interface QuadirectionalTreeTranslateConfig extends QuadirectionalTreeTranslateConfigX, QuadirectionalTreeTranslateConfigY {
+  ignoreUnevenSiblings?: boolean;
+}
+
 export default class QuadirectionalTree {
   parent: QuadirectionalTree;
   left: QuadirectionalTree;
   right: QuadirectionalTree;
   deepness: number;
   hasFixedLength: boolean;
-  children: Array<QuadirectionalTree>;
+  children: QuadirectionalTree[];
   data: any;
   bind: any;
   graphics: Vector2d;
@@ -83,14 +98,15 @@ export default class QuadirectionalTree {
     this.graphics = { x: 0, y: 0 };
   }
 
+  /**
+    *   Count all nodes in the same level.
+    *   This is a recursive function and the direction param determines where the recursion
+    *   should go. Zero (0) means both left and right.
+    *
+    *   @param direction one of these values -1, 0, 1.
+    *   @return a number indicating the length of the level.
+    */
   levelLenght(direction: number): number {
-    /* Count how much nodes are in the whole structure with the same deepness (in the same level).
-     * 
-     * The count can be started in any node. The start node will be called "Start Count Point" or SCP
-     * if direction == 0  then this == SCP
-     * if direction == -1 then this is some place left from SCP.
-     * if direction == 1  then this is some place right from SCP.
-     */
     return 1
       + (this.left && direction <= 0 ? this.left.levelLenght(-1) : 0)
       + (this.right && direction >= 0 ? this.right.levelLenght(1) : 0);
@@ -99,7 +115,7 @@ export default class QuadirectionalTree {
   insertChild(data: any, index: number): QuadirectionalTree {
     if (!this.hasFixedLength) throw 'The method setChildOn can only be used with hasFixedLength == true';
     if (isNaN(index)) throw 'Arg index should be a number';
-    if (Math.trunc(index) !== index || index < 0) throw 'Arg index should be a integer equal or greather than 0';
+    if (Math.trunc(index) !== index || index < 0) throw 'Arg index should be a integer equal or greater than 0';
 
     const child = new QuadirectionalTree(data, this.children.length);
 
@@ -213,6 +229,13 @@ export default class QuadirectionalTree {
     return this.left ? this.left.getClosestToRightChild() : null;
   }
 
+  /**
+    *   Fill all necessary nodes on these tree to replacated another data structure.
+    *
+    *   @param data another data structure.
+    *   @param dataProp the name of the prop of the data structure that holds information.
+    *   @param childrenProps the name or names of all props that link down with child nodes.
+    */
   fillFrom(data: any, dataProp: string, childrenProps: Array<string>): void {
     this.data = data[dataProp];
     this.bind = data;
@@ -248,7 +271,7 @@ export default class QuadirectionalTree {
     return null;
   }
 
-  getFirstOnLevel(): Array<QuadirectionalTree> {
+  getFirstOnLevel(): QuadirectionalTree[] {
     const firsts = [];
 
     for (const item of this) {
@@ -258,20 +281,41 @@ export default class QuadirectionalTree {
     return firsts;
   }
 
-  getMinTranslationOnLeft(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): number {
-    // Find the translation to right direction needed
-    // to make the current node respect the minimum space between itself
-    // and the next node on the left.
+  getLastOnLevel(): QuadirectionalTree[] {
+    const lasts = [];
 
+    for (const item of this) {
+      lasts[item.deepness] = item;
+    }
+
+    return lasts;
+  }
+
+  /**
+    *   Find the minimum translation on right direction needed
+    *   to make the current node respect space between itself and
+    *   the next node on the left.
+    *
+    *   @param config information about size and spaces.
+    */
+  getMinTranslationOnLeft(config: QuadirectionalTreeTranslateConfigX): number {
     if (!this.left) return;
 
-    const min = this.left.graphics.x + width +
-      (this.parent == this.left.parent ? spaceBetweenSiblings : spaceBetweenCousins);
+    const min = this.left.graphics.x + config.width +
+      (this.parent == this.left.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
 
     return min - this.graphics.x;
   }
 
-  getMinTranslationOnLeftTree(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): number {
+  /**
+    *   Find the minimum translation on right direction needed
+    *   to make the current node and all its descendants respect
+    *   space between itself and the next node on the left with
+    *   all its descendants.
+    *
+    *   @param config information about size and spaces.
+    */
+  getMinTranslationOnLeftTree(config: QuadirectionalTreeTranslateConfigX): number {
     // The minimum translation necessary will be the greater translation
     // of any node descendant of the current element.
 
@@ -280,7 +324,7 @@ export default class QuadirectionalTree {
     for (const item of this.getFirstOnLevel()) {
       if (!item) continue;
 
-      const translation = item.getMinTranslationOnLeft(width, spaceBetweenSiblings, spaceBetweenCousins);
+      const translation = item.getMinTranslationOnLeft(config);
 
       if (translation > greater) greater = translation;
     }
@@ -288,12 +332,44 @@ export default class QuadirectionalTree {
     return greater;
   }
 
-  getAnchorPoint(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): QuadirectionalTree {
+  getMinTranslationOnRight(config: QuadirectionalTreeTranslateConfigX): number {
+    if (!this.right) return;
+
+    const min = this.right.graphics.x - config.width -
+      (this.parent == this.right.parent ? config.spaceBetweenSiblings : config.spaceBetweenCousins);
+
+    return this.graphics.x - min;
+  }
+
+  getMinTranslationOnRightTree(config: QuadirectionalTreeTranslateConfigX): number {
+    let greater = 0;
+
+    for (const item of this.getLastOnLevel()) {
+      if (!item) continue;
+
+      const translation = item.getMinTranslationOnRight(config);
+
+      if (translation > greater) greater = translation;
+    }
+
+    return greater;
+  }
+
+  /**
+    *   If the current node has more space on left that the minimum
+    *   distance between siblings or cousings, means that its
+    *   descendants are forcing this node to be on a greater x
+    *   position. The specific node that forces this excessive translation
+    *   its called anchor point.
+    *
+    *   @param config information about size and spaces.
+    */
+  getAnchorPoint(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
     for (const item of this.getFirstOnLevel()) {
       if (!item) continue;
       if (item == this) continue;
 
-      const min = item.getMinTranslationOnLeft(width, spaceBetweenSiblings, spaceBetweenCousins);
+      const min = item.getMinTranslationOnLeft(config);
 
       if (min == 0) return item;
     }
@@ -301,18 +377,66 @@ export default class QuadirectionalTree {
     return null;
   }
 
-  getLeftAnchor(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): QuadirectionalTree {
+  /**
+    *   If this node has an descendant that is an anchor point, find
+    *   the ancestor of the node on left of anchor point that has the
+    *   same deepness of the current node.
+    *
+    *   @param config information about size and spaces.
+    */
+  getLeftAnchor(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
     if (!this.left) return null;
     if (this.parent != this.left.parent) return null;
-    if (this.graphics.x - this.left.graphics.x <= width + spaceBetweenSiblings) return null;
+    if (this.graphics.x - this.left.graphics.x <= config.width + config.spaceBetweenSiblings) return null;
 
-    let anchorPoint = this.getAnchorPoint(width, spaceBetweenSiblings, spaceBetweenCousins);
+    let anchorPoint = this.getAnchorPoint(config);
+
+    if (!anchorPoint) return null;
 
     if (!anchorPoint.left) return null;
 
-    return anchorPoint.left.getRoot(this.deepness);
+    return anchorPoint.left.getAncestor(this.deepness);
   }
 
+  /**
+    *   If this node has a left anchor, and if there is
+    *   nodes between this node and the left anchor its possible
+    *   that the nodes is between ar porly poorly distributed,
+    *   with greater space on right on comparison to left.
+    *   The nodes between left anchor and this are called
+    *   uneven siblings
+    *
+    *   @param config information about size and spaces.
+    *   @returns return the uneven siblings
+    */
+  getUnevenSiblings(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree[] {
+    let leftAnchor = this.getLeftAnchor(config);
+
+    if (!leftAnchor) return [];
+
+    while (leftAnchor.parent != this.parent) {
+      if (leftAnchor.right) return [];
+
+      leftAnchor = leftAnchor.right;
+    }
+
+    if (leftAnchor == this.left) return [];
+
+    const unevenNodes = new Array<QuadirectionalTree>();
+
+    for (let node = leftAnchor.right; node && node != this; node = node.right) {
+      unevenNodes.push(node);
+    }
+
+    return unevenNodes;
+  }
+
+  /**
+    *   Translate this node and all its descendants.
+    *
+    *   @param x the horizontal increment.
+    *   @param y the vertical increment.
+    */
   translate(x: number, y: number): void {
     this.graphics.x += x;
     this.graphics.y += y;
@@ -322,6 +446,11 @@ export default class QuadirectionalTree {
     }
   }
 
+  /**
+    *   Translate this node on horizontal direction to be
+    *   positioned on the center of its children. If there
+    *   is no children translate to zero (0).
+    */
   translateToChildrenCenter(): void {
     const first = this.getFirstChild();
     const last = this.getLastChild();
@@ -337,41 +466,84 @@ export default class QuadirectionalTree {
     }
   }
 
-  transtateToRespectSpaceLeft(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): void {
+  /**
+    *   Translate this node and all his descendants to respect
+    *   the minimum distance between siblings and cousins.
+    *
+    *   @param config information about size and spaces.
+    */
+  transtateToRespectSpaceLeft(config: QuadirectionalTreeTranslateConfigX): void {
     this.translateToChildrenCenter();
 
-    let minTranslationX = this.getMinTranslationOnLeftTree(width, spaceBetweenSiblings, spaceBetweenCousins);
+    let minTranslationX = this.getMinTranslationOnLeftTree(config);
 
     if (minTranslationX) this.translate(minTranslationX, 0);
   }
 
-  translateEvenlyBetweenSiblings(width: number, spaceBetweenSiblings: number, spaceBetweenCousins: number): void {
-    if (!this.left) return;
-    if (this.parent != this.left.parent) return;
-    if (this.graphics.x - this.left.graphics.x <= width + spaceBetweenSiblings) return;
+  /**
+    *   If this node has a left anchor, and if there is
+    *   nodes between this node and the left anchor its possible
+    *   that the nodes is between ar porly poorly distributed,
+    *   with greater space on right on comparison to left.
+    *   This translation function mitigated this uneven spaces.
+    *
+    *   @param config information about size and spaces.
+    */
+  translateEvenlyBetweenSiblings(config: QuadirectionalTreeTranslateConfigX): void {
+    const unevenSiblings = this.getUnevenSiblings(config);
 
-    let anchorPoint = this.getAnchorPoint(width, spaceBetweenSiblings, spaceBetweenCousins);
+    if (!unevenSiblings) return;
+    if (!unevenSiblings.length) return;
 
-    if (!anchorPoint.left) return;
+    const left = unevenSiblings[0].left;
+    const right = unevenSiblings[unevenSiblings.length - 1].right;
 
-    let leftHandler = anchorPoint.getRoot(this.deepness);
+    const totalSpace = right.graphics.x - left.graphics.x - config.width;
+    const widthSpace = unevenSiblings.length * config.width;
+    let unevenSpace = totalSpace - widthSpace;
 
+    for (let i = unevenSiblings.length - 1; i >= 0; i--) {
+      const item = unevenSiblings[i];
 
+      const space = Math.round(unevenSpace / (i + 2));
+      unevenSpace -= space;
+
+      // position to `item` have `space` between `item` and `item.right`
+      let tx = item.right.graphics.x - space - config.width - item.graphics.x;
+      
+      item.translate(tx, 0);
+
+      // after `item` is translated check if the minimal space was desrespected.
+      tx = item.getMinTranslationOnRightTree(config);
+
+      if (tx > 0) {
+        unevenSpace -= tx;
+        item.translate(-tx, 0);
+      }
+    }
   }
 
-  updateGraphics(width: number, height: number, spaceBetweenSiblings: number, spaceBetweenCousins: number, spaceBetweenParentAndChild: number): void {
+   /**
+    *   Update the graphics property on this node and his
+    *   descendants, respecting the sizes and spaces passed on config.
+    *
+    *   @param config information about size and spaces.
+    */
+  updateGraphics(config: QuadirectionalTreeTranslateConfig): void {
     const firsts = this.getFirstOnLevel();
 
     for (let rowIndex = firsts.length - 1; rowIndex >= 0; rowIndex--) {
       for (let col = firsts[rowIndex]; col; col = col.right) {
-        col.transtateToRespectSpaceLeft(width, spaceBetweenSiblings, spaceBetweenCousins);
-        col.graphics.y = col.deepness * (height + spaceBetweenParentAndChild);
+        col.transtateToRespectSpaceLeft(config);
+        col.graphics.y = col.deepness * (config.height + config.spaceBetweenParentAndChild);
       }
     }
 
+    if (config.ignoreUnevenSiblings) return;
+
     for (let rowIndex = firsts.length - 1; rowIndex >= 0; rowIndex--) {
       for (let col = firsts[rowIndex]; col; col = col.right) {
-        col.translateEvenlyBetweenSiblings(width, spaceBetweenSiblings, spaceBetweenCousins);
+        col.translateEvenlyBetweenSiblings(config);
       }
     }
   }
@@ -384,8 +556,16 @@ export default class QuadirectionalTree {
     }
   }
 
-  getRoot(deepness?: number): QuadirectionalTree {
-    return this.parent && this.deepness != deepness ? this.parent.getRoot(deepness) : this;
+  /**
+    *   Get the ancestor on the specified deepness.
+    *   If deepness is undefined or a invalid value,
+    *   get the root element of the tree.
+    *
+    *   @param deepness the expected deepness of the desired ancestor
+    *   @returns the ancestor.
+    */
+  getAncestor(deepness?: number): QuadirectionalTree {
+    return this.parent && this.deepness != deepness ? this.parent.getAncestor(deepness) : this;
   }
 
   print(tab: string, highlight: QuadirectionalTree): Array<string> {

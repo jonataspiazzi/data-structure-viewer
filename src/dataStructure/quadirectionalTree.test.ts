@@ -1,4 +1,4 @@
-import QuadirectionalTree from './quadirectionalTree';
+import QuadirectionalTree, { QuadirectionalTreeTranslateConfig } from './quadirectionalTree';
 import { createQuadirectionalTreeData, createBinarySearchTreeData, createLinkedList, createGraphicTreeData } from './testSamples';
 import chalk from 'chalk';
 import BinarySearchTree from './binarySearchTree';
@@ -8,6 +8,7 @@ declare global {
   namespace jest {
     interface Matchers<R> {
       toBeNode: (expected: number) => R;
+      toBeNodes: (...expected: number[]) => R;
       toBeIterator: (...expected: Array<number>) => R;
       toBeBound: (expected: BinarySearchTree | LinkedList) => R;
       toHaveLocation: (x: number, y: number) => R;
@@ -22,6 +23,7 @@ describe('QuadirectionalTree tests', () => {
   let quadBinTree: QuadirectionalTree = null;
   let quadListTree: QuadirectionalTree = null;
   let quadGraphics: Array<QuadirectionalTree> = null;
+  let translateConfig: QuadirectionalTreeTranslateConfig;
 
   beforeAll(() => {
     nodes = createQuadirectionalTreeData();
@@ -30,6 +32,14 @@ describe('QuadirectionalTree tests', () => {
     list = createLinkedList();
     quadListTree = new QuadirectionalTree(undefined, 1);
     quadGraphics = createGraphicTreeData();
+    translateConfig = {
+      width: 120,
+      height: 120,
+      spaceBetweenSiblings: 40,
+      spaceBetweenCousins: 80,
+      spaceBetweenParentAndChild: 80,
+      ignoreUnevenSiblings: true
+    };
 
     const printReceivedNode = (received: any) => {
       return chalk.red(received instanceof QuadirectionalTree
@@ -63,6 +73,47 @@ describe('QuadirectionalTree tests', () => {
             `Received: ${printReceivedNode(received)}`;
 
         return { actual: received, message, pass };
+      },
+      toBeNodes(received: [], ...actual: number[]) {
+        const actualNodes = actual
+          ? actual.map(i => nodes[i] || quadGraphics[i])
+          : [];
+
+        const receivedNodes = received || [];
+
+        let pass = true;
+        let indexError = 0;
+        let actualError: any = null;
+        let receivedError: any = null;
+        const length = actualNodes.length > receivedNodes.length ? actualNodes.length : receivedNodes.length;
+
+        for (let i = 0; i < length; i++) {
+          const actualNode = actualNodes[i];
+          const receivedNode = receivedNodes[i];
+
+          pass = actualNode == receivedNode || (!actualNode && !receivedNode);
+
+          if (!pass) {
+            indexError = i;
+            actualError = actualNode;
+            receivedError = receivedNode;
+            break;
+          }
+        }
+
+        const message = pass
+          ? () => ''
+          : () => {
+            console.log(typeof actualError, typeof receivedError);
+
+            return this.utils.matcherHint('toBeNodes', undefined, undefined, {}) +
+              '\n\n' +
+              `Index: ${chalk.magenta(indexError.toString())}\n` +
+              `Expected: ${printExpectedNode(actualError)}\n` +
+              `Received: ${printReceivedNode(receivedError)}`;
+          }
+
+        return { actual, message, pass };
       },
       toBeIterator(receiveds, ...indexes) {
         let pass = false;
@@ -412,79 +463,163 @@ describe('QuadirectionalTree tests', () => {
     expect(f3[3]).toBeNode(9);
   });
 
-  test('Should get anchor point', () => {
-    quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
+  test('Should get last on level', () => {
+    const f1 = nodes[0].getLastOnLevel();
+    const f2 = nodes[10].getLastOnLevel();
+    const f3 = nodes[1].getLastOnLevel();
 
-    expect(quadGraphics[101].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[201].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[202].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[203].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[204].getAnchorPoint(120, 40, 80)).toBeNode(408);
-    expect(quadGraphics[205].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[206].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[301].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[302].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[303].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[304].getAnchorPoint(120, 40, 80)).toBeNode(408);
-    expect(quadGraphics[305].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[306].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[401].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[402].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[403].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[404].getAnchorPoint(120, 40, 80)).toBeNode(502);
-    expect(quadGraphics[405].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[406].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[407].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[408].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[409].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[501].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[502].getAnchorPoint(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[503].getAnchorPoint(120, 40, 80)).toBeNode(null);
+    expect(f1.length).toBe(4);
+    expect(f2.length).toBe(3);
+    expect(f3.length).toBe(4);
+
+    expect(f1[0]).toBeNode(0);
+    expect(f1[1]).toBeNode(3);
+    expect(f1[2]).toBeNode(7);
+    expect(f1[3]).toBeNode(9);
+
+    expect(f2[0]).toBeNode(10);
+    expect(f2[1]).toBeNode(12);
+    expect(f2[2]).toBeNode(14);
+
+    expect(f3[0]).toBeNode(null);
+    expect(f3[1]).toBeNode(1);
+    expect(f3[2]).toBeNode(5);
+    expect(f3[3]).toBeNode(8);
+  });
+
+  test('Should get anchor point', () => {
+    quadGraphics[101].updateGraphics(translateConfig);
+
+    expect(quadGraphics[101].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[201].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[202].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[203].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[204].getAnchorPoint(translateConfig)).toBeNode(408);
+    expect(quadGraphics[205].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[206].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[301].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[302].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[303].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[304].getAnchorPoint(translateConfig)).toBeNode(408);
+    expect(quadGraphics[305].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[306].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[401].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[402].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[403].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[404].getAnchorPoint(translateConfig)).toBeNode(502);
+    expect(quadGraphics[405].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[406].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[407].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[408].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[409].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[501].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[502].getAnchorPoint(translateConfig)).toBeNode(null);
+    expect(quadGraphics[503].getAnchorPoint(translateConfig)).toBeNode(null);
   });
 
   test('Should get left anchor', () => {
-    quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
+    quadGraphics[101].updateGraphics(translateConfig);
 
-    expect(quadGraphics[101].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[201].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[202].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[203].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[204].getLeftAnchor(120, 40, 80)).toBeNode(201);
-    expect(quadGraphics[205].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[206].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[301].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[302].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    //expect(quadGraphics[303].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[304].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[305].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[306].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[401].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[402].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[403].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[404].getLeftAnchor(120, 40, 80)).toBeNode(403);
-    expect(quadGraphics[405].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[406].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[407].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[408].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[409].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[501].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[502].getLeftAnchor(120, 40, 80)).toBeNode(null);
-    expect(quadGraphics[503].getLeftAnchor(120, 40, 80)).toBeNode(null);
+    expect(quadGraphics[101].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[201].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[202].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[203].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[204].getLeftAnchor(translateConfig)).toBeNode(201);
+    expect(quadGraphics[205].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[206].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[301].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[302].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[303].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[304].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[305].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[306].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[401].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[402].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[403].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[404].getLeftAnchor(translateConfig)).toBeNode(403);
+    expect(quadGraphics[405].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[406].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[407].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[408].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[409].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[501].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[502].getLeftAnchor(translateConfig)).toBeNode(null);
+    expect(quadGraphics[503].getLeftAnchor(translateConfig)).toBeNode(null);
   });
 
-  test('Should update graphics correctly.', () => {
-    quadGraphics[101].updateGraphics(120, 120, 40, 80, 80);
+  test('Should get left anchor', () => {
+    quadGraphics[101].updateGraphics(translateConfig);
+
+    expect(quadGraphics[101].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[201].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[202].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[203].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[204].getUnevenSiblings(translateConfig)).toBeNodes(202, 203);
+    expect(quadGraphics[205].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[206].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[301].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[302].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[303].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[304].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[305].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[306].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[401].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[402].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[403].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[404].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[405].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[406].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[407].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[408].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[409].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[501].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[502].getUnevenSiblings(translateConfig)).toBeNodes();
+    expect(quadGraphics[503].getUnevenSiblings(translateConfig)).toBeNodes();
+  });
+
+  test('Should update graphics without translate uneven siblings correctly.', () => {
+    quadGraphics[101].updateGraphics(translateConfig);
 
     expect(quadGraphics[101]).toHaveLocation(1070, 0);
     expect(quadGraphics[201]).toHaveLocation(540, 200);
-    //expect(quadGraphics[202]).toHaveLocation(870, 200);
-    //expect(quadGraphics[203]).toHaveLocation(1000, 200);
+    expect(quadGraphics[202]).toHaveLocation(700, 200);
+    expect(quadGraphics[203]).toHaveLocation(860, 200);
     expect(quadGraphics[204]).toHaveLocation(1280, 200);
     expect(quadGraphics[205]).toHaveLocation(1440, 200);
     expect(quadGraphics[206]).toHaveLocation(1600, 200);
     expect(quadGraphics[301]).toHaveLocation(540, 400);
-    //expect(quadGraphics[302]).toHaveLocation(920, 400);
-    //expect(quadGraphics[303]).toHaveLocation(1080, 400);
+    expect(quadGraphics[302]).toHaveLocation(780, 400);
+    expect(quadGraphics[303]).toHaveLocation(940, 400);
+    expect(quadGraphics[304]).toHaveLocation(1280, 400);
+    expect(quadGraphics[305]).toHaveLocation(1520, 400);
+    expect(quadGraphics[306]).toHaveLocation(1680, 400);
+    expect(quadGraphics[401]).toHaveLocation(0, 600);
+    expect(quadGraphics[402]).toHaveLocation(160, 600);
+    expect(quadGraphics[403]).toHaveLocation(320, 600);
+    expect(quadGraphics[404]).toHaveLocation(600, 600);
+    expect(quadGraphics[405]).toHaveLocation(760, 600);
+    expect(quadGraphics[406]).toHaveLocation(920, 600);
+    expect(quadGraphics[407]).toHaveLocation(1080, 600);
+    expect(quadGraphics[408]).toHaveLocation(1280, 600);
+    expect(quadGraphics[409]).toHaveLocation(1680, 600);
+    expect(quadGraphics[501]).toHaveLocation(320, 800);
+    expect(quadGraphics[502]).toHaveLocation(520, 800);
+    expect(quadGraphics[503]).toHaveLocation(680, 800);
+  });
+
+  test('Should update graphics correctly.', () => {
+    quadGraphics[101].updateGraphics({ ...translateConfig, ignoreUnevenSiblings: false });
+
+    expect(quadGraphics[101]).toHaveLocation(1070, 0);
+    expect(quadGraphics[201]).toHaveLocation(540, 200);
+    expect(quadGraphics[202]).toHaveLocation(770, 200);
+    expect(quadGraphics[203]).toHaveLocation(1000, 200);
+    expect(quadGraphics[204]).toHaveLocation(1280, 200);
+    expect(quadGraphics[205]).toHaveLocation(1440, 200);
+    expect(quadGraphics[206]).toHaveLocation(1600, 200);
+    expect(quadGraphics[301]).toHaveLocation(540, 400);
+    expect(quadGraphics[302]).toHaveLocation(920, 400);
+    expect(quadGraphics[303]).toHaveLocation(1080, 400);
     expect(quadGraphics[304]).toHaveLocation(1280, 400);
     expect(quadGraphics[305]).toHaveLocation(1520, 400);
     expect(quadGraphics[306]).toHaveLocation(1680, 400);
