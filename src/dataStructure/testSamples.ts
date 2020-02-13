@@ -1,7 +1,7 @@
 import QuadirectionalTree from './quadirectionalTree';
 import BinarySearchTree from './binarySearchTree';
 import LinkedList from './linkedList';
-import GeneralTree from './GeneralTree';
+import GeneralTree from './generalTree';
 
 export function createQuadirectionalTreeData() {
   /*
