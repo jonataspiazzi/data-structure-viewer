@@ -60,6 +60,33 @@ import { Vector2d } from "../types";
  * 
  */
 
+/**
+  *   Configure the process that connect a generic data structure to the
+  *   current QuadirectionalTree
+  */
+export interface QuadirectionalTreeFillConfig {
+  /**
+    *   The name of the property that holds the information.
+    */
+  dataProperty: string;
+
+  /**
+    *  The name or names of the properties that reference another nodes
+    *  that can be considered as child, next or subtree.
+    *  @ If hasFixedNumberOfChildren == true the each property has to refer another element.
+    *  @ If hasFixedNumberOfChildren == false should be only one property and the property should be a list of elements.
+    */
+  childrenProperties: string[];
+
+  /**
+    *  Determines if there data structure has a predeterminated number of children.
+    *  @ This is true to list, queues and stacks because has only one "next" element.
+    *  @ This is true to binary trees bacause has two children a left and a right child.
+    *  @ This is false to ntrees because a element can have N children elements. 
+    */
+  hasFixedNumberOfChildren: boolean;
+}
+
 export interface QuadirectionalTreeTranslateConfigX {
   width: number;
   spaceBetweenSiblings: number;
@@ -230,30 +257,31 @@ export default class QuadirectionalTree {
   }
 
   /**
-    *   Fill all necessary nodes on these tree to replacated another data structure.
+    *   Copy all information and structure from a generic data structure.
     *
-    *   @param data another data structure.
-    *   @param dataProp the name of the prop of the data structure that holds information.
-    *   @param childrenProps the name or names of all props that link down with child nodes.
+    *   @param {any} dataSource a generic structure to copied information from. 
+    *   @param {QuadirectionalTreeFillConfig} config the configuration to know how to copy information from data source.
     */
-  fillFrom(data: any, dataProp: string, childrenProps: Array<string>): void {
-    this.data = data[dataProp];
-    this.bind = data;
+  copyData(dataSource: any, config: QuadirectionalTreeFillConfig): void {
+    this.data = dataSource[config.dataProperty];
+    this.bind = dataSource;
+
+    this.hasFixedLength = config.hasFixedNumberOfChildren;
 
     if (this.hasFixedLength) {
-      for (let i = 0; i < childrenProps.length; i++) {
-        const genericChild = data[childrenProps[i]];
-        if (!genericChild) continue;
+      for (let i = 0; i < config.childrenProperties.length; i++) {
+        const sourceChild = dataSource[config.childrenProperties[i]];
+        if (!sourceChild) continue;
         const child = this.insertChild(undefined, i);
-        child.fillFrom(genericChild, dataProp, childrenProps);
+        child.copyData(sourceChild, config);
       }
 
       return;
     }
 
-    for (const genericChild of data[childrenProps[0]]) {
+    for (const sourceChild of dataSource[config.childrenProperties[0]]) {
       const child = this.pushChild(undefined);
-      child.fillFrom(genericChild, dataProp, childrenProps);
+      child.copyData(sourceChild, config);
     }
   }
 

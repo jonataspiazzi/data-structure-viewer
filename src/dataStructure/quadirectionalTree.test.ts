@@ -1,8 +1,9 @@
 import QuadirectionalTree, { QuadirectionalTreeTranslateConfig } from './quadirectionalTree';
-import { createQuadirectionalTreeData, createBinarySearchTreeData, createLinkedList, createGraphicTreeData } from './testSamples';
+import { createQuadirectionalTreeData, createBinarySearchTreeData, createLinkedList, createGraphicTreeData, createGeneralTree } from './testSamples';
 import chalk from 'chalk';
 import BinarySearchTree from './binarySearchTree';
 import LinkedList from './linkedList';
+import GeneralTree from './generalTree';
 
 declare global {
   namespace jest {
@@ -10,7 +11,7 @@ declare global {
       toBeNode: (expected: number) => R;
       toBeNodes: (...expected: number[]) => R;
       toBeIterator: (...expected: Array<number>) => R;
-      toBeBound: (expected: BinarySearchTree | LinkedList) => R;
+      toBeBound: (expected: BinarySearchTree | LinkedList | GeneralTree) => R;
       toHaveLocation: (x: number, y: number) => R;
     }
   }
@@ -20,17 +21,15 @@ describe('QuadirectionalTree tests', () => {
   let nodes: Array<QuadirectionalTree> = [];
   let binTree: BinarySearchTree = null;
   let list: LinkedList = null;
-  let quadBinTree: QuadirectionalTree = null;
-  let quadListTree: QuadirectionalTree = null;
+  let generalTree: GeneralTree = null;
   let quadGraphics: Array<QuadirectionalTree> = null;
   let translateConfig: QuadirectionalTreeTranslateConfig;
 
   beforeAll(() => {
     nodes = createQuadirectionalTreeData();
     binTree = createBinarySearchTreeData();
-    quadBinTree = new QuadirectionalTree(undefined, 2);
     list = createLinkedList();
-    quadListTree = new QuadirectionalTree(undefined, 1);
+    generalTree = createGeneralTree();
     quadGraphics = createGraphicTreeData();
     translateConfig = {
       width: 120,
@@ -379,29 +378,81 @@ describe('QuadirectionalTree tests', () => {
     expect(nodes[14]).toBeIterator(14);
   });
 
-  test('Should fill correctly from a binary tree', () => {
-    quadBinTree.fillFrom(binTree, 'info', ['left', 'right']);
+  test('Should copy data correctly from a binary tree', () => {
+    const quadTree = new QuadirectionalTree(null, 2);
 
-    expect(quadBinTree).toBeBound(binTree);
-    expect(quadBinTree.children[0]).toBeBound(binTree.left);
-    expect(quadBinTree.children[1]).toBeBound(binTree.right);
-    expect(quadBinTree.children[0].children[0]).toBeBound(binTree.left.left);
-    expect(quadBinTree.children[0].children[1]).toBeBound(binTree.left.right);
-    expect(quadBinTree.children[0].children[1].children[0]).toBeBound(binTree.left.right.left);
-    expect(quadBinTree.children[0].children[1].children[1]).toBeBound(binTree.left.right.right);
-    expect(quadBinTree.children[1].children[1]).toBeBound(binTree.right.right);
-    expect(quadBinTree.children[1].children[1].children[0]).toBeBound(binTree.right.right.left);
+    quadTree.copyData(binTree, {
+      dataProperty: 'info',
+      childrenProperties: ['left', 'right'],
+      hasFixedNumberOfChildren: true
+    });
+
+    expect(quadTree).toBeBound(binTree);
+    expect(quadTree.children[0]).toBeBound(binTree.left);
+    expect(quadTree.children[1]).toBeBound(binTree.right);
+    expect(quadTree.children[0].children[0]).toBeBound(binTree.left.left);
+    expect(quadTree.children[0].children[1]).toBeBound(binTree.left.right);
+    expect(quadTree.children[0].children[1].children[0]).toBeBound(binTree.left.right.left);
+    expect(quadTree.children[0].children[1].children[1]).toBeBound(binTree.left.right.right);
+    expect(quadTree.children[1].children[1]).toBeBound(binTree.right.right);
+    expect(quadTree.children[1].children[1].children[0]).toBeBound(binTree.right.right.left);
   });
 
-  test('Should fill correctly from a list', () => {
-    quadListTree.fillFrom(list, 'info', ['next']);
+  test('Should copy data correctly from a list', () => {
+    const quadTree = new QuadirectionalTree(null, 1);
 
-    expect(quadListTree).toBeBound(list);
-    expect(quadListTree.children[0]).toBeBound(list.next);
-    expect(quadListTree.children[0].children[0]).toBeBound(list.next.next);
-    expect(quadListTree.children[0].children[0].children[0]).toBeBound(list.next.next.next);
-    expect(quadListTree.children[0].children[0].children[0].children[0]).toBeBound(list.next.next.next.next);
+    quadTree.copyData(list, {
+      dataProperty: 'info',
+      childrenProperties: ['next'],
+      hasFixedNumberOfChildren: true
+    });
+
+    expect(quadTree).toBeBound(list);
+    expect(quadTree.children[0]).toBeBound(list.next);
+    expect(quadTree.children[0].children[0]).toBeBound(list.next.next);
+    expect(quadTree.children[0].children[0].children[0]).toBeBound(list.next.next.next);
+    expect(quadTree.children[0].children[0].children[0].children[0]).toBeBound(list.next.next.next.next);
   });
+
+  test('Should copy data correctly from a generic list', ()=>{
+    const quadTree = new QuadirectionalTree(null, 0);
+
+    quadTree.copyData(generalTree,{
+      dataProperty:'info',
+      childrenProperties:['children'],
+      hasFixedNumberOfChildren:false
+    });
+
+    expect(quadTree).toBeBound(generalTree);
+
+    expect(quadTree.children[0]).toBeBound(generalTree.children[0]);
+    expect(quadTree.children[1]).toBeBound(generalTree.children[1]);
+    expect(quadTree.children[2]).toBeBound(generalTree.children[2]);
+    expect(quadTree.children[3]).toBeBound(generalTree.children[3]);
+    expect(quadTree.children[4]).toBeBound(generalTree.children[4]);
+    expect(quadTree.children[5]).toBeBound(generalTree.children[5]);
+
+    expect(quadTree.children[0].children[0]).toBeBound(generalTree.children[0].children[0]);
+    expect(quadTree.children[2].children[0]).toBeBound(generalTree.children[2].children[0]);
+    expect(quadTree.children[2].children[1]).toBeBound(generalTree.children[2].children[1]);
+    expect(quadTree.children[3].children[0]).toBeBound(generalTree.children[3].children[0]);
+    expect(quadTree.children[5].children[0]).toBeBound(generalTree.children[5].children[0]);
+    expect(quadTree.children[5].children[1]).toBeBound(generalTree.children[5].children[1]);
+
+    expect(quadTree.children[0].children[0].children[0]).toBeBound(generalTree.children[0].children[0].children[0]);
+    expect(quadTree.children[0].children[0].children[1]).toBeBound(generalTree.children[0].children[0].children[1]);
+    expect(quadTree.children[0].children[0].children[2]).toBeBound(generalTree.children[0].children[0].children[2]);
+    expect(quadTree.children[0].children[0].children[3]).toBeBound(generalTree.children[0].children[0].children[3]);
+    expect(quadTree.children[0].children[0].children[4]).toBeBound(generalTree.children[0].children[0].children[4]);
+    expect(quadTree.children[0].children[0].children[5]).toBeBound(generalTree.children[0].children[0].children[5]);
+    expect(quadTree.children[0].children[0].children[6]).toBeBound(generalTree.children[0].children[0].children[6]);
+    expect(quadTree.children[3].children[0].children[0]).toBeBound(generalTree.children[3].children[0].children[0]);
+    expect(quadTree.children[5].children[1].children[0]).toBeBound(generalTree.children[5].children[1].children[0]);
+
+    expect(quadTree.children[0].children[0].children[2].children[0]).toBeBound(generalTree.children[0].children[0].children[2].children[0]);
+    expect(quadTree.children[0].children[0].children[3].children[0]).toBeBound(generalTree.children[0].children[0].children[3].children[0]);
+    expect(quadTree.children[0].children[0].children[3].children[1]).toBeBound(generalTree.children[0].children[0].children[3].children[1]);
+  })
 
   test('Should find the first child', () => {
     expect(nodes[0].getFirstChild()).toBeNode(1);

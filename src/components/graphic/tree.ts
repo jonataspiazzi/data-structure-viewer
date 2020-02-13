@@ -49,4 +49,10 @@ export default class Tree implements GraphicItem {
 
     p5.pop();
   }
+
+  pushChange(qTree: QuadirectionalTree) {
+    qTree.updateGraphics(this.config);
+
+    
+  }
 }
