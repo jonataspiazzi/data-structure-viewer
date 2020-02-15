@@ -1,11 +1,3 @@
-import P5 from "p5";
-
-export interface GraphicItem {
-  animate(): void;
-  render(p5: P5): void;
-  hasGraphicUpdates(): boolean;
-}
-
 export interface EasingFunc {
   (value: number): number;
 }
