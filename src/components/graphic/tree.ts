@@ -1,16 +1,24 @@
 import { GraphicItem } from "../../types";
 import P5 from 'p5';
-import QuadirectionalTree, { QuadirectionalTreeTranslateConfig } from "../../dataStructure/quadirectionalTree";
+import QuadirectionalTree, { QuadirectionalTreeTranslateConfig as QuadirectionalTreeGraphicConfig, QuadirectionalTreeFillConfig as QuadirectionalTreeCopyConfig } from "../../dataStructure/quadirectionalTree";
 
 export default class Tree implements GraphicItem {
-  qTree: QuadirectionalTree;
-  config: QuadirectionalTreeTranslateConfig;
+  configCopy: QuadirectionalTreeCopyConfig;
+  configGraphics: QuadirectionalTreeGraphicConfig;
 
-  constructor(qTree: QuadirectionalTree, config: QuadirectionalTreeTranslateConfig) {
-    this.qTree = qTree;
-    this.config = config;
+  constructor(configCopy: QuadirectionalTreeCopyConfig, configGraphics: QuadirectionalTreeGraphicConfig) {
+    this.configCopy = configCopy;
+    this.configGraphics = configGraphics;
+  }
 
-    this.qTree.updateGraphics(this.config);
+  /**
+   * Add a new data structure, the differences between this data source and previous
+   * data sources will be animated.
+   * 
+   * @param dataSource The data source with a generic structure. Should be compatible with configCopy passed on constructor.
+   */
+  stackAnimation(dataSource: any) {
+
   }
 
   animate(): void {
@@ -54,5 +62,9 @@ export default class Tree implements GraphicItem {
     qTree.updateGraphics(this.config);
 
     
+  }
+
+  hasGraphicUpdates() {
+    return true;
   }
 }

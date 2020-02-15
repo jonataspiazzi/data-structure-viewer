@@ -1,82 +1,63 @@
-import { EasingFunc } from "../types";
+import { TimeTrack, EasingFunc } from "../types";
+import { lerp } from "./mathFunctions";
+import EasingTrack from "./easingTrack";
+import Delay from "./delay";
 
-export default class Timeline {
-  easing: EasingFunc;
-  duration: number;
-  autoreset: boolean;
-  startMoment: number;
-  isPaused: boolean;
-  hasStarted: boolean;
-  hasFinished: boolean;
-  pauseElapsed: number;
+export default class Timeline implements TimeTrack {
+  lastTrackFinish: Date;
+  tracks: TimeTrack[];
 
-  constructor(easing: EasingFunc, duration: number, autostart: boolean, autoreset: boolean) {
-    this.easing = easing;
-    this.duration = duration;
-    this.autoreset = !!autoreset;
-    this.stop();
-    if (autostart) this.start();
+  constructor() {
+    this.tracks = [];
+    this.lastTrackFinish = null;
+  }
+
+  addEasing(duration: number, easing: EasingFunc) {
+    this.tracks.push(new EasingTrack(duration, easing));
+  }
+
+  addDelay(duration: number) {
+    this.tracks.push(new Delay(duration));
+  }
+
+  addTrack(timeTrack: TimeTrack) {
+    if (this.tracks.length) {
+      timeTrack.start(new Date());
+    }
+
+    this.tracks.push(timeTrack);
   }
 
   start(): void {
-    this.startMoment = Date.now();
-    this.isPaused = false;
-    this.hasStarted = true;
-    this.hasFinished = false;
+    return;
   }
 
-  pause(): void {
-    if (this.isPaused) return;
-    this.pauseElapsed = this.elapsed();
-    this.isPaused = true;
-  }
-
-  resume(): void {
-    this.startMoment = Date.now() - this.pauseElapsed;
-    this.isPaused = false;
-    this.pauseElapsed = 0;
-  }
-
-  finish(): void {
-    this.isPaused = false;
-    this.hasStarted = true;
-    this.hasFinished = true;
-
-    if (this.autoreset) {
-      this.start();
-    }
-  }
-
-  stop(): void {
-    this.startMoment = 0;
-    this.pauseElapsed = 0;
-    this.isPaused = false;
-    this.hasStarted = false;
-    this.hasFinished = false;
-  }
-
-  // amount of seconds from start
-  elapsed(): number {
-    if (!this.hasStarted) return 0;
-    if (this.hasFinished) return this.duration;
-
-    return this.isPaused ? this.pauseElapsed : Date.now() - this.startMoment;
-  }
-
-  // percentage of progress.
-  progress(): number {
-    return this.elapsed() * 1.0 / this.duration;
-  }
-
-  // a value to be used in animation.
   alpha(): number {
-    let d = this.progress();
+    if (!this.tracks.length) return 1;
 
-    if (d > 1) {
-      d = 1;
-      this.finish();
+    let currentTrack = this.tracks[0];
+
+    if (currentTrack.isFinished()) {
+      this.lastTrackFinish = currentTrack.finishedAt();
+      this.tracks.shift();
+      
+      if (!this.tracks.length) return 1;
+
+      const newTrack = this.tracks[0];
+
+      newTrack.start(currentTrack.finishedAt());
+
+      currentTrack = newTrack;
     }
 
-    return this.easing(d);
+    return currentTrack.alpha();
+  }
+
+  isFinished(): boolean {
+    return this.tracks.length == 0 && !!this.lastTrackFinish;
+  }
+
+  finishedAt(): Date {
+    return this.lastTrackFinish;
   }
 }

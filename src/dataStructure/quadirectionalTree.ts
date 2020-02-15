@@ -87,18 +87,18 @@ export interface QuadirectionalTreeFillConfig {
   hasFixedNumberOfChildren: boolean;
 }
 
-export interface QuadirectionalTreeTranslateConfigX {
+export interface QuadirectionalTreeGraphicConfigX {
   width: number;
   spaceBetweenSiblings: number;
   spaceBetweenCousins: number;
 }
 
-export interface QuadirectionalTreeTranslateConfigY {
+export interface QuadirectionalTreeGraphicConfigY {
   height: number;
   spaceBetweenParentAndChild: number;
 }
 
-export interface QuadirectionalTreeTranslateConfig extends QuadirectionalTreeTranslateConfigX, QuadirectionalTreeTranslateConfigY {
+export interface QuadirectionalTreeTranslateConfig extends QuadirectionalTreeGraphicConfigX, QuadirectionalTreeGraphicConfigY {
   ignoreUnevenSiblings?: boolean;
 }
 
@@ -326,7 +326,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  getMinTranslationOnLeft(config: QuadirectionalTreeTranslateConfigX): number {
+  getMinTranslationOnLeft(config: QuadirectionalTreeGraphicConfigX): number {
     if (!this.left) return;
 
     const min = this.left.graphics.x + config.width +
@@ -343,7 +343,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  getMinTranslationOnLeftTree(config: QuadirectionalTreeTranslateConfigX): number {
+  getMinTranslationOnLeftTree(config: QuadirectionalTreeGraphicConfigX): number {
     // The minimum translation necessary will be the greater translation
     // of any node descendant of the current element.
 
@@ -360,7 +360,7 @@ export default class QuadirectionalTree {
     return greater;
   }
 
-  getMinTranslationOnRight(config: QuadirectionalTreeTranslateConfigX): number {
+  getMinTranslationOnRight(config: QuadirectionalTreeGraphicConfigX): number {
     if (!this.right) return;
 
     const min = this.right.graphics.x - config.width -
@@ -369,7 +369,7 @@ export default class QuadirectionalTree {
     return this.graphics.x - min;
   }
 
-  getMinTranslationOnRightTree(config: QuadirectionalTreeTranslateConfigX): number {
+  getMinTranslationOnRightTree(config: QuadirectionalTreeGraphicConfigX): number {
     let greater = 0;
 
     for (const item of this.getLastOnLevel()) {
@@ -392,7 +392,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  getAnchorPoint(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
+  getAnchorPoint(config: QuadirectionalTreeGraphicConfigX): QuadirectionalTree {
     for (const item of this.getFirstOnLevel()) {
       if (!item) continue;
       if (item === this) continue;
@@ -412,7 +412,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  getLeftAnchor(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree {
+  getLeftAnchor(config: QuadirectionalTreeGraphicConfigX): QuadirectionalTree {
     if (!this.left) return null;
     if (this.parent !== this.left.parent) return null;
     if (this.graphics.x - this.left.graphics.x <= config.width + config.spaceBetweenSiblings) return null;
@@ -437,7 +437,7 @@ export default class QuadirectionalTree {
     *   @param config information about size and spaces.
     *   @returns return the uneven siblings
     */
-  getUnevenSiblings(config: QuadirectionalTreeTranslateConfigX): QuadirectionalTree[] {
+  getUnevenSiblings(config: QuadirectionalTreeGraphicConfigX): QuadirectionalTree[] {
     let leftAnchor = this.getLeftAnchor(config);
 
     if (!leftAnchor) return [];
@@ -500,7 +500,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  transtateToRespectSpaceLeft(config: QuadirectionalTreeTranslateConfigX): void {
+  transtateToRespectSpaceLeft(config: QuadirectionalTreeGraphicConfigX): void {
     this.translateToChildrenCenter();
 
     let minTranslationX = this.getMinTranslationOnLeftTree(config);
@@ -517,7 +517,7 @@ export default class QuadirectionalTree {
     *
     *   @param config information about size and spaces.
     */
-  translateEvenlyBetweenSiblings(config: QuadirectionalTreeTranslateConfigX): void {
+  translateEvenlyBetweenSiblings(config: QuadirectionalTreeGraphicConfigX): void {
     const unevenSiblings = this.getUnevenSiblings(config);
 
     if (!unevenSiblings) return;
